@@ -25,6 +25,7 @@ class fm_fileControl extends fm_controlBase{
 									'upload_dir' => '%wp_uploads_dir%',
 									'name_format' => get_option('fm-file-name-format'),
 									'media_type' => 'none',
+									'restrict'=> ".gif, .jpg, .jpeg"
 									);
 		$itemInfo['nickname'] = '';
 		$itemInfo['required'] = 0;

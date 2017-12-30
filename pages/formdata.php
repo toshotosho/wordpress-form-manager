@@ -280,7 +280,9 @@ if(isset($_POST['fm-doaction'])){
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// HOOK ////////////////////////////////////////////////////////////////////////////////////
 
-do_action( 'fm_data_process_checked', $checked );
+if ( isset( $checked ) ){
+	do_action( 'fm_data_process_checked', $checked );
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -294,12 +296,12 @@ if(isset($_POST['submit-edit'])){
 }
 
 /// build the query
-$dataPerPage = isset($_POST['fm-data-per-page']) ? $_POST['fm-data-per-page'] : 30;
-$dataSortBy = isset($_POST['fm-data-sort-by']) ? $_POST['fm-data-sort-by'] : 'timestamp';
+$dataPerPage = isset($_POST['fm-data-per-page']) ? sanitize_text_field($_POST['fm-data-per-page']) : 30;
+$dataSortBy = isset($_POST['fm-data-sort-by']) ? sanitize_text_field($_POST['fm-data-sort-by']) : 'timestamp';
 if(trim($dataSortBy) == "") $dataSortBy = 'timestamp';
 
-$dataSortOrder = $_POST['fm-data-sort-order'] == 'asc' ? 'ASC' : 'DESC';
-$dataCurrentPage = isset($_POST['fm-data-current-page']) ? $_POST['fm-data-current-page'] : 1;
+$dataSortOrder = ( isset( $_POST['fm-data-sort-order'] ) && $_POST['fm-data-sort-order'] == 'asc' ) ? 'ASC' : 'DESC';
+$dataCurrentPage = isset($_POST['fm-data-current-page']) ? sanitize_text_field($_POST['fm-data-current-page']) : 1;
 
 $dataQuery = "SELECT `unique_id`, ".fm_getColQueryList( $cols )." FROM `".$form['data_table']."` ";
 $allQuery = $dataQuery;
@@ -309,14 +311,18 @@ $countQuery = "SELECT COUNT(*) as cnt FROM `".$form['data_table']."` ";
 $queryClauses = array();
 
 // search
-if(!trim($_POST['fm-data-search']) == ""){
-	$colID = fm_getSafeColKey($_POST['fm-data-search-column'], $cols);	
-	if($colID !== false)
-		$queryClauses[] = $wpdb->prepare("`".$colID."` LIKE %s ", "%".$_POST['fm-data-search']."%");
+if( isset( $_POST[ 'fm-data-search' ] ) && !trim($_POST['fm-data-search']) == "" ){
+	$searchColumn = sanitize_text_field($_POST['fm-data-search-column']);
+	$colID = fm_getSafeColKey($searchColumn, $cols);	
+	if($colID !== false){
+		$fmDataSearch = sanitize_text_field($_POST['fm-data-search']);
+		$queryClauses[] = $wpdb->prepare("`".$colID."` LIKE %s ", "%".$fmDataSearch."%");
+	}
 }
 
 //date range
-switch ( $_POST['fm-data-date-range'] ) {
+$fmDataDateRange = isset( $_POST[ 'fm-data-date-range' ] ) ? $_POST[ 'fm-data-date-range' ] : "";
+switch ( $fmDataDateRange ) {
 		
 	case 'month':
 		$queryClauses[] = "MONTH(`timestamp`) = MONTH(CURDATE())";
@@ -537,6 +543,11 @@ $bulkActions = apply_filters( 'fm_data_bulk_actions', $bulkActions );
 		<?php endif; ?>
 	<?php endif; ?>
 	
+	
+	<?php
+	$fmDataDateStart = isset( $_POST[ 'fm-data-date-start' ] ) ? sanitize_text_field($_POST[ 'fm-data-date-start' ]) : "";
+	$fmDataDateEnd = isset( $_POST[ 'fm-data-date-end' ] ) ? sanitize_text_field($_POST[ 'fm-data-date-end' ]) : "";
+	?>
 	<div class="postbox fm-data-options" style="float:right; clear:right;">
 		<h3><?php _e("Date Range", 'wordpress-form-manager');?></h3>
 		<table>
@@ -545,46 +556,54 @@ $bulkActions = apply_filters( 'fm_data_bulk_actions', $bulkActions );
 					<label for="fm-data-date-range"><?php echo _x("Show", 'date-range', 'wordpress-form-manager'); ?>:</label>
 					<select name="fm-data-date-range" id="fm-data-date-range" >
 						<?php foreach($fm_dateRangeOptions as $k=>$v): ?>
-							<option value="<?php echo $k;?>" <?php if($k==$_POST['fm-data-date-range']) echo 'selected="selected"';?>><?php echo $v;?></option>
+							<option value="<?php echo $k;?>" <?php if($k==$fmDataDateRange) echo 'selected="selected"';?>><?php echo $v;?></option>
 						<?php endforeach; ?>
 					</select>
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo _x("From", 'date-range', 'wordpress-form-manager');?>: <input type="text" name="fm-data-date-start" id="fm-data-date-start" value="<?php echo htmlspecialchars($_POST['fm-data-date-start']);?>"/></td>
+				<td><?php echo _x("From", 'date-range', 'wordpress-form-manager');?>: <input type="text" name="fm-data-date-start" id="fm-data-date-start" value="<?php echo htmlspecialchars($fmDataDateStart);?>"/></td>
 			</tr>
 			<tr>
-				<td><?php echo _x("To", 'date-range', 'wordpress-form-manager');?>: <input type="text" name="fm-data-date-end" id="fm-data-date-end" value="<?php echo htmlspecialchars($_POST['fm-data-date-end']);?>"/></td>
+				<td><?php echo _x("To", 'date-range', 'wordpress-form-manager');?>: <input type="text" name="fm-data-date-end" id="fm-data-date-end" value="<?php echo htmlspecialchars($fmDataDateEnd);?>"/></td>
 			</tr>
 		</table>
 	</div>
 	
+	<?php
+	$fmDataSearch = isset( $_POST[ 'fm-data-search' ] ) ? sanitize_text_field($_POST[ 'fm-data-search' ]) : "";
+	$fmDataSearchColumn = isset( $_POST[ 'fm-data-search-column' ] ) ? sanitize_text_field($_POST[ 'fm-data-search-column' ]) : "";
+	?>
 	<div class="postbox fm-data-options" style="float:right;">
 		<h3><?php _e("Search", 'wordpress-form-manager');?></h3>
 		<table>
 			<tr>
 				<td><?php _e("Search for", 'wordpress-form-manager');?>:</td>
-				<td><input type="text" name="fm-data-search" id="fm-data-search" value="<?php echo htmlspecialchars($_POST['fm-data-search']); ?>" /></td>
+				<td><input type="text" name="fm-data-search" id="fm-data-search" value="<?php echo htmlspecialchars($fmDataSearch); ?>" /></td>
 			</tr>
 			<tr>
 				<td><?php _e("Field", 'wordpress-form-manager');?>:</td>
-				<td><?php fm_colSelect('fm-data-search-column', $cols, $_POST['fm-data-search-column']); ?></td>
+				<td><?php fm_colSelect('fm-data-search-column', $cols, $fmDataSearchColumn); ?></td>
 			</tr>
 		</table>
 	</div>
-
+	
+	<?php
+	$fmDataSortBy = isset( $_POST['fm-data-sort-by'] ) ? sanitize_text_field($_POST['fm-data-sort-by']) : "";
+	$fmDataSortOrder = isset( $_POST['fm-data-sort-order'] ) ? sanitize_text_field($_POST['fm-data-sort-order']) : "asc";
+	?>
 	<div class="tablenav" style="float:right; clear:right;">
 		<div class="alignleft actions">
 			<label for="fm-data-per-page"><?php _e("Results per page", 'wordpress-form-manager'); ?>:</label>
 			<input type="text" id="fm-data-per-page" name="fm-data-per-page" value="<?php echo $dataPerPage; ?>"/>
 			
 			<label for="fm-data-sort-by"><?php _e("Sort by", 'wordpress-form-manager');?>:</label>
-			<?php fm_colSelect('fm-data-sort-by', $cols, $_POST['fm-data-sort-by']); ?>
+			<?php fm_colSelect('fm-data-sort-by', $cols, $fmDataSortBy); ?>
 			
 			<label for="fm-data-sort-order"><?php _e("Order", 'wordpress-form-manager');?>:</label>
 			<select name="fm-data-sort-order" id="fm-data-sort-order">
 				<option value="desc"><?php _e("Descending", 'wordpress-form-manager');?></option>
-				<option value="asc" <?php if($_POST['fm-data-sort-order']=='asc') echo 'selected="selected"';?>><?php _e("Ascending", 'wordpress-form-manager');?></option>
+				<option value="asc" <?php if($fmDataSortOrder=='asc') echo 'selected="selected"';?>><?php _e("Ascending", 'wordpress-form-manager');?></option>
 			</select>
 			
 			<input type="submit" name="submit-ok" id="submit-ok" class="button secondary" value="<?php _e("Update", 'wordpress-form-manager');?>" />

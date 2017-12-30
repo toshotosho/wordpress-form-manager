@@ -19,10 +19,11 @@ if($_REQUEST['id']!="")
 if(isset($_POST['submit-form-settings'])){
 	$formInfo = array();	
 	$formInfo['conditions'] = processConditionsPost();
+	$formID = sanitize_text_field($_POST['fm-form-id']);
 	
-	$fmdb->updateForm($_POST['fm-form-id'], $formInfo);
+	$fmdb->updateForm($formID, $formInfo);
 	
-	$form = $fmdb->getForm($_POST['fm-form-id']);
+	$form = $fmdb->getForm($formID);
 }
 
 //takes the posted info and converts it to the proper associative array structure to be stored in the DB
@@ -42,14 +43,15 @@ function processConditionsPost(){
 		$tempInfo = array('rule' => $_POST[$condID.'-rule'], 'id' => $newCondID, 'tests' => array(), 'items' => array());
 		$testOrder = explode(",", $_POST[$condID.'-test-order']);
 		for($x=0;$x<sizeof($testOrder);$x++){
-			$tempInfo['tests'][] = array('test' => $_POST[$condID.'-test-'.$testOrder[$x]],
-										'unique_name' => $_POST[$condID.'-test-itemID-'.$testOrder[$x]],
-										'val' => stripslashes($_POST[$condID.'-test-val-'.$testOrder[$x]]),
-										'connective' => $_POST[$condID.'-test-connective-'.$testOrder[$x]]
+			$tempInfo['tests'][] = array('test' => 				sanitize_text_field($_POST[$condID.'-test-'.$testOrder[$x]]),
+										'unique_name' => 		sanitize_text_field($_POST[$condID.'-test-itemID-'.$testOrder[$x]]),
+										'val' => 				stripslashes(sanitize_text_field($_POST[$condID.'-test-val-'.$testOrder[$x]])),
+										'connective' => 		sanitize_text_field($_POST[$condID.'-test-connective-'.$testOrder[$x]])
 									);
 		}
-		for($x=0;$x<$_POST[$condID.'-item-count'];$x++){
-			$temp = $_POST[$condID.'-item-'.$x];
+		$itemCount = intval($_POST[$condID.'-item-count']);
+		for($x=0;$x<$itemCount;$x++){
+			$temp = sanitize_text_field($_POST[$condID.'-item-'.$x]);
 			if($temp != "")
 				$tempInfo['items'][] = $temp;
 		}
@@ -83,7 +85,7 @@ if(isset($_POST['message']) && isset($_POST['submit-form-settings']))
 		case 2: ?><div id="message-error" class="error"><p><?php _e("Save failed.", 'wordpress-form-manager');?> </p></div><?php break;
 		default: ?>
 			<?php if(isset($_POST['message']) && trim($_POST['message']) != ""): ?>
-			<div id="message-error" class="error"><p><?php echo stripslashes($_POST['message']);?></p></div>
+			<div id="message-error" class="error"><p><?php echo stripslashes(sanitize_text_field($_POST['message']));?></p></div>
 			<?php endif; ?>
 		<?php
 	} 

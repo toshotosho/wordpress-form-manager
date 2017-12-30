@@ -27,14 +27,17 @@ $templateList = $fm_templates->getTemplateFilesByType();
 /// LOAD FIELDS //////////////////////////////////////////
 
 if(isset($_POST['load-fields'])){
-	$loadedForm = $fmdb->copyForm($_POST['load-fields-id']);
-	if($_POST['load-fields-insert-after'] == "0"){  //insert at beginning		
+	$loadFieldsID = sanitize_text_field($_POST['load-fields-id']);
+	$insertFieldsAfter = sanitize_text_field($_POST['load-fields-insert-after']);
+	
+	$loadedForm = $fmdb->copyForm($loadFieldsID);
+	if( $insertFieldsAfter == "0"){  //insert at beginning		
 		$temp = $form['items'];
 		$form['items'] = $loadedForm['items'];
 		foreach($temp as $item)
 			$form['items'][] = $item;
 	}
-	else if($_POST['load-fields-insert-after'] == "1"){  //insert at end
+	else if($insertFieldsAfter == "1"){  //insert at end
 		foreach($loadedForm['items'] as $item)
 			$form['items'][] = $item;
 	}
@@ -42,7 +45,7 @@ if(isset($_POST['load-fields'])){
 		$temp = array();
 		foreach($form['items'] as $oldItem){
 			$temp[] = $oldItem;
-			if($oldItem['unique_name'] == $_POST['load-fields-insert-after']){
+			if($oldItem['unique_name'] == $insertFieldsAfter){
 				foreach($loadedForm['items'] as $newItem)
 					$temp[] = $newItem;
 			}
@@ -70,7 +73,7 @@ if(isset($_POST['message']))
 		case 2: ?><div id="message-error" class="error"><p><?php _e("Save failed.", 'wordpress-form-manager'); ?> </p></div><?php break;
 		default: ?>
 			<?php if(isset($_POST['message']) && trim($_POST['message']) != ""): ?>
-			<div id="message-error" class="error"><p><?php echo stripslashes($_POST['message']);?></p></div>
+			<div id="message-error" class="error"><p><?php echo stripslashes(sanitize_text_field($_POST['message']));?></p></div>
 			<?php endif; ?>
 		<?php
 	} ?></div>

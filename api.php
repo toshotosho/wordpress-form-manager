@@ -303,10 +303,10 @@ function fm_processPost( $formInfo ) {
 	}
 	
 	
-	if( get_option( 'fm-nonce-check' ) == "YES" ){
-		
+	if( get_option( 'fm-nonce-check' ) == "YES" ){		
 		// verify the nonce
-		if( ! wp_verify_nonce($_POST['fm_nonce'],'fm-nonce') )
+		$nonce = sanitize_text_field( $_POST['fm_nonce'] );
+		if( ! wp_verify_nonce($nonce,'fm-nonce') )
 			return false;	
 	}
 			
@@ -320,8 +320,8 @@ function fm_processPost( $formInfo ) {
 		$formInfo['ID'],
 		array('user'=>$current_user->user_login,
 			'user_ip' => fm_get_user_IP(),
-			'unique_id' => $_POST['fm_uniq_id'],
-			'parent_post_id' => $_POST['fm_parent_post_id'],
+			'unique_id' => sanitize_text_field($_POST['fm_uniq_id']),
+			'parent_post_id' => sanitize_text_field($_POST['fm_parent_post_id']),
 			),
 		$overwrite
 		);

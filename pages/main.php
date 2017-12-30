@@ -18,7 +18,7 @@ if( (!$fm_MEMBERS_EXISTS || current_user_can('form_manager_add_forms')) && isset
 	$fmdb->createForm(null);
 	
 	
-//APPLY ACTION$wpdb->prefix.get_option('fm-data-table-prefix')
+//APPLY ACTION
 if(isset($_POST['fm-doaction'])){
 	//check for 'delete'
 	if($_POST['fm-action-select'] == "delete"){
@@ -35,7 +35,7 @@ if(isset($_POST['fm-doaction'])){
 //SINGLE DELETE
 if((!$fm_MEMBERS_EXISTS || current_user_can('form_manager_delete_forms')) && isset($_POST['fm-action']) && $_POST['fm-action'] == "delete"){
 	$deleteIds = array();
-	$deleteIds[0] = $_POST['fm-id'];
+	$deleteIds[0] = sanitize_text_field($_POST['fm-id']);
 	$currentDialog = "verify-delete";
 }
 
@@ -43,7 +43,7 @@ if((!$fm_MEMBERS_EXISTS || current_user_can('form_manager_delete_forms')) && iss
 if((!$fm_MEMBERS_EXISTS || current_user_can('form_manager_delete_forms')) && isset($_POST['fm-delete-yes'])){
 	$index=0;
 	while(isset($_POST['fm-delete-id-'.$index])){
-		$fmdb->deleteForm($_POST['fm-delete-id-'.$index]);
+		$fmdb->deleteForm(sanitize_text_field($_POST['fm-delete-id-'.$index]));
 		$index++;
 	}
 }
