@@ -4,23 +4,23 @@ $fm_templateControlTypes = array( 'select' => 'fm_templateControlSelect',
 										'text' => 'fm_templateControlText'
 										);
 class fm_templateControlBase{
-	
+
 	function getEditor($value, $option){
 		$id = $this->getVarId($option);
 		return "<input type=\"text\" id=\"".$id."\" name=\"".$id."\" value=\"".htmlspecialchars($value)."\"/>";
-	}	
-	
+	}
+
 	function parseStoredValue($value, $option){
 		return $value;
 	}
-	
+
 	function getVarId($option){
 		return 'fm-'.str_replace("\$", "", $option['var']);
 	}
 	//used for the javascript function that collects values for AJAX save; mostly to accomodate the checkbox type
 	function getElementValueAttribute(){ return 'value'; }
 }
-								
+
 class fm_templateControlSelect extends fm_templateControlBase{
 	 function getEditor($value, $option){
 	 	$id = $this->getVarId($option);
@@ -42,7 +42,7 @@ class fm_templateControlCheckbox extends fm_templateControlBase{
 	 }
 	 function getElementValueAttribute(){ return 'checked'; }
 }
-class fm_templateControlText extends fm_templateControlBase{	 
+class fm_templateControlText extends fm_templateControlBase{
 }
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ var $headers = array('option' => 'option',
 				'template_desc' => 'Template Description',
 				'template_type' => 'Template Type'
 				);
-				
+
 function __construct(){
 	$this->templatesDir = dirname(__FILE__).'/templates';
 }
@@ -77,7 +77,7 @@ function getTemplateAttributes($fileName){
 			case 'option':
 				//closeout the current option if there is one
 				if($currentOption !== false) $templateAtts['options'][] = $currentOption;
-				
+
 				$currentOption = array();
 				$opt = explode(",", $option['value']);
 				$currentOption['var'] = trim($opt[0]);
@@ -91,44 +91,44 @@ function getTemplateAttributes($fileName){
 				break;
 			case 'options':
 				eval("\$arr = array(" . trim($option['value']) . ");");
-				$currentOption['options'] = $arr;				
+				$currentOption['options'] = $arr;
 				break;
 			case 'default':
 				$currentOption['default'] = $option['value'];
 				break;
 			default:
 				$templateAtts[$option['field']] = $option['value'];
-				break;			
-		}	
+				break;
+		}
 	}
-	
+
 	if($currentOption !== false) $templateAtts['options'][] = $currentOption;
-	
+
 	return $templateAtts;
 }
 
 function resetTemplates(){
 	global $fmdb;
-	$fmdb->flushTemplates();				
+	$fmdb->flushTemplates();
 	$this->initTemplates();
 }
 
 function initTemplates(){
-	global $fmdb;	
-	
+	global $fmdb;
+
 	//compare the stored templates with those in the templates directory.  Files that exist in the database but not on disk are re-created on disk; files that exist on disk are all stored in the database.
 	$files = $this->getTemplateFiles($this->templatesDir);
 	$dbTemplates = $fmdb->getTemplateList();
-		
+
 	//echo '<pre>'.print_r($files, true).'</pre>';
 	//echo '<pre>'.print_r($dbTemplates, true).'</pre>';
-	
+
 	//replace any 'lost' templates (this is primarily to keep template files across an update)
 	foreach($dbTemplates as $dbFile => $dbTemp){
 		$dbFile = trim($dbFile);
 		$templateInfo = $fmdb->getTemplate($dbFile, false);
 		if(isset($files[$dbFile])){ // file exists on disk
-			unset($files[$dbFile]);		//unset the file; the list of files will be used later to load in new files	
+			unset($files[$dbFile]);		//unset the file; the list of files will be used later to load in new files
 			$filemtime = filemtime($this->templatesDir.'/'.$dbFile);
 			if( $filemtime > $templateInfo['modified']){ //file is a newer version than the one in the db
 				$content = file_get_contents($this->templatesDir.'/'.$dbFile);
@@ -141,17 +141,17 @@ function initTemplates(){
 		else{	// file does not exist on disk
 			//echo $dbFile." recreated<br />";
 			$templateInfo = $fmdb->getTemplate($dbFile);
-			
+
 			fm_write_file( $this->templatesDir.'/'.$dbFile, $templateInfo['content'] );
 		}
-	}	
-	
+	}
+
 	foreach($files as $file){
 		$filemtime = filemtime($this->templatesDir.'/'.$file);
 		$content = file_get_contents($this->templatesDir.'/'.$file);
-		$title = $template['template_name'];
+		$title = ( ! empty( $template['template_name'] ) ) ? $template['template_name'] : $file ;
 		//echo $title." loaded<br />";
-		$fmdb->storeTemplate($file, $title, $content, $filemtime);		
+		$fmdb->storeTemplate($file, $title, $content, $filemtime);
 	}
 }
 
@@ -171,14 +171,14 @@ function getTemplateFilesByType(){
 	$templateList['form'] = array();
 	$templateList['email'] = array();
 	$templateList['summary'] = array();
-	
+
 	foreach($templates as $file=>$temp){
 		if(strpos($temp['template_type'], 'form') !== false) $templateList['form'][$file] = $temp['template_name'];
 		if(strpos($temp['template_type'], 'email') !== false) $templateList['email'][$file] = $temp['template_name'];
 		if(strpos($temp['template_type'], 'summary') !== false) $templateList['summary'][$file] = $temp['template_name'];
 	}
-	
-	return $templateList;	
+
+	return $templateList;
 }
 
 protected function getTemplateFiles($dir){
@@ -188,7 +188,7 @@ protected function getTemplateFiles($dir){
 			if($file != "." && $file != ".." && is_file($dir."/".$file))
 				$arr[$file] = $file;
 		}
-		closedir($handle);		
+		closedir($handle);
 		return $arr;
 	}
 	return false;
