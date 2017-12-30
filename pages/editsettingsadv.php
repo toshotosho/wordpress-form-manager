@@ -20,9 +20,9 @@ if(isset($_POST['submit-settings'])){
 		if(isset($_POST['validator-list-item-'.$x.'-name'])){
 			$val = array();
 			$val['name'] = $_POST['validator-list-item-'.$x.'-name'];
-			$val['label'] = stripslashes($_POST['validator-list-item-'.$x.'-label']);
-			$val['message'] = stripslashes($_POST['validator-list-item-'.$x.'-message']);
-			$val['regexp'] = stripslashes($_POST['validator-list-item-'.$x.'-regexp']);
+			$val['label'] = stripslashes(sanitize_text_field($_POST['validator-list-item-'.$x.'-label']));
+			$val['message'] = stripslashes(sanitize_text_field($_POST['validator-list-item-'.$x.'-message']));
+			$val['regexp'] = stripslashes(sanitize_text_field($_POST['validator-list-item-'.$x.'-regexp']));
 			
 			if($val['name'] == "")
 				$val['name'] = 'validator-'.$x;
@@ -47,18 +47,18 @@ if(isset($_POST['submit-settings'])){
 	////////////////////////////////////////////////////////////////////////////////////
 	//Process template settings
 	
-	$fmdb->setGlobalSetting('template_form', stripslashes($_POST['template_form']));
-	$fmdb->setGlobalSetting('template_email', stripslashes($_POST['template_email']));
-	$fmdb->setGlobalSetting('template_summary', stripslashes($_POST['template_summary']));
+	$fmdb->setGlobalSetting('template_form', stripslashes(sanitize_text_field($_POST['template_form'])));
+	$fmdb->setGlobalSetting('template_email', stripslashes(sanitize_text_field($_POST['template_email'])));
+	$fmdb->setGlobalSetting('template_summary', stripslashes(sanitize_text_field($_POST['template_summary'])));
 	
 	////////////////////////////////////////////////////////////////////////////////////
 	//Other
 	
 	update_option('fm-enable-mce-button', $_POST['enable_mce_button']?"YES":"");
-	update_option('fm-file-method', $_POST['file_method']);
-	update_option('fm-file-name-format', $_POST['file_name_format']);
-	update_option('fm-email-send-method', $_POST['email_send_method']);
-	update_option('fm-allowed-tags', $_POST['fm-allowed-tags']);
+	update_option('fm-file-method', sanitize_text_field($_POST['file_method']));
+	update_option('fm-file-name-format', sanitize_text_field($_POST['file_name_format']));
+	update_option('fm-email-send-method', sanitize_text_field($_POST['email_send_method']));
+	update_option('fm-allowed-tags', sanitize_text_field($_POST['fm-allowed-tags']));
 	update_option('fm-strip-tags', $_POST['fm-strip-tags']?"YES":"");
 	update_option('fm-nonce-check', $_POST['fm-nonce-check']?"YES":"");
 	update_option('fm-shortcode-scripts', $_POST['fm-shortcode-scripts']?"YES":"");
@@ -67,7 +67,7 @@ if(isset($_POST['submit-settings'])){
 	
 }
 elseif(isset($_POST['remove-template'])){
-	$fm_templates->removeTemplate($_POST['remove-template-filename']);	
+	$fm_templates->removeTemplate(sanitize_text_field($_POST['remove-template-filename']));
 }
 else if(isset($_POST['reset-templates'])){
 	$fm_templates->resetTemplates();
@@ -153,7 +153,7 @@ function fm_getManagedListCount(ulID){
 			case 2: ?><div id="message-error" class="error"><p><?php _e("Save failed.", 'wordpress-form-manager');?> </p></div><?php break;
 			default: ?>
 				<?php if(isset($_POST['message']) && trim($_POST['message']) != ""): ?>
-				<div id="message-error" class="error"><p><?php echo stripslashes($_POST['message']);?></p></div>
+				<div id="message-error" class="error"><p><?php echo stripslashes(sanitize_text_field($_POST['message']));?></p></div>
 				<?php endif; ?>
 			<?php
 		} 
@@ -268,10 +268,14 @@ file_method
 <?php helper_option_field('email_send_method', __("Send method", 'wordpress-form-manager'), $emailMethods, get_option('fm-email-send-method') ); ?>
 </table>
 
+
 <h3><?php _e("Content Filtering", 'wordpress-form-manager');?></h3>
 <table class="form-table">
-<?php helper_checkbox_field('fm-strip-tags', __("Strip HTML Tags", 'wordpress-form-manager'), (get_option('fm-strip-tags') == "YES"), __("If not enabled, all HTML will be displayed as its literal text.", 'wordpress-form-manager')); ?>
+<?php /*<?php helper_checkbox_field('fm-strip-tags', __("Strip HTML Tags", 'wordpress-form-manager'), (get_option('fm-strip-tags') == "YES"), __("If not enabled, all HTML will be displayed as its literal text.", 'wordpress-form-manager')); ?>
 <?php helper_text_field('fm-allowed-tags', __("Allowed HTML Tags", 'wordpress-form-manager'), get_option('fm-allowed-tags'), htmlspecialchars(__("Enter tags including '<' and '>', e.g., \"<a><em><strong><br><hr>\" etc.", 'wordpress-form-manager')));?>
+*/
+?>
+<tr><td colspan="2"><span class="description"><?php _e("As of version 1.7.4, HTML tags are always stripped from text input.", 'wordpress-form-manager');?></span></td></tr>
 </table>
 
 <h3><?php _e("Security", 'wordpress-form-manager');?></h3>

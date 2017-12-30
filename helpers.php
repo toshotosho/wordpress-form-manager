@@ -298,10 +298,10 @@ function fm_getColQueryList( &$cols ){
 // post processing
 
 function fm_getCheckedItems(){
-	$numrows = $_POST['fm-num-rows'];
+	$numrows = intval($_POST['fm-num-rows']);
 	$checked=array();
 	for($x=0;$x<$numrows;$x++){
-		$rowID = $_POST['cb-'.$x];
+		$rowID = sanitize_text_field($_POST['cb-'.$x]);
 		if(isset($_POST['cb-'.$rowID])){
 			$checked[] = $rowID;
 		}
@@ -310,10 +310,10 @@ function fm_getCheckedItems(){
 }
 
 function fm_getEditItems(){
-	$numrows = $_POST['fm-num-rows'];
+	$numrows = intval($_POST['fm-num-rows']);
 	$edit = array();
 	for($x=0;$x<$numrows;$x++){
-		$rowID = $_POST['cb-'.$x];
+		$rowID = sanitize_text_field($_POST['cb-'.$x]);
 		if($_POST['cb-'.$rowID] == 'edit'){
 			$edit[] = $rowID;
 		}
@@ -376,11 +376,13 @@ function fm_getTmpURL(){
 }
 
 function fm_strip_tags($str){
-	if ( get_option('fm-strip-tags') == "YES" ){
+	/*if ( get_option('fm-strip-tags') == "YES" ){
 		return strip_tags($str, get_option('fm-allowed-tags'));
 	} else {
 		return htmlspecialchars($str);
-	}
+	}*/
+	
+	return strip_tags( $str );
 }
 
 function fm_helper_sendEmail($formInfo, $postData){

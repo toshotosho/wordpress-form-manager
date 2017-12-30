@@ -57,7 +57,7 @@ function createFormInfo($inputStr){
 	$index = 0;
 	foreach($parsedInfo as $parsed){
 		$newItem = array();
-		$newItem['ID'] = $_POST['fm-form-id'];
+		$newItem['ID'] = sanitize_text_field($_POST['fm-form-id']);
 		$newItem['index'] = $index++;
 		$newItem['unique_name'] = (isset($parsed['unique-name']) ? $parsed['unique-name'] : $fmdb->getUniqueItemID($parsed['type']));
 		$newItem['type'] = $parsed['type'];

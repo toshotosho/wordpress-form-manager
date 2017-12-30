@@ -24,20 +24,21 @@ $metaForm = $fmdb->getForm( $_REQUEST['id'], 1 );
 if(isset($_POST['fm-form-id'])){
 	
 	$formInfo = array();	
+	$formID = sanitize_text_field($_POST['fm-form-id']);
 	
 	$formInfo['items'] = $form['items'];
 	foreach($form['items'] as $index => $item){
 		$formInfo['items'][$index]['nickname'] = sanitize_title($_POST[$item['unique_name'].'-edit-nickname']);		
 	}
-	$fmdb->updateForm($_POST['fm-form-id'], $formInfo);
+	$fmdb->updateForm($formID, $formInfo);
 	
 	foreach($metaForm['items'] as $index => $item){
 		$metaForm['items'][$index]['nickname'] = sanitize_title($_POST[$item['unique_name'].'-edit-nickname']);		
 	}
-	$fmdb->updateForm($_POST['fm-form-id'], $metaForm, 1 );	
+	$fmdb->updateForm($formID, $metaForm, 1 );	
 		
-	$form = $fmdb->getForm($_POST['fm-form-id']);
-	$metaForm = $fmdb->getForm( $_REQUEST['id'], 1 );
+	$form = $fmdb->getForm($formID);
+	$metaForm = $fmdb->getForm( sanitize_text_field($_REQUEST['id']), 1 );
 }
 
 
@@ -65,7 +66,7 @@ $fm_globalSettings = $fmdb->getGlobalSettings();
 			case 2: ?><div id="message-error" class="error"><p><?php _e("Save failed.", 'wordpress-form-manager');?> </p></div><?php break;
 			default: ?>
 				<?php if(isset($_POST['message']) && trim($_POST['message']) != ""): ?>
-				<div id="message-error" class="error"><p><?php echo stripslashes($_POST['message']);?></p></div>
+				<div id="message-error" class="error"><p><?php echo stripslashes(sanitize_text_field($_POST['message']));?></p></div>
 				<?php endif; ?>
 			<?php
 		} 

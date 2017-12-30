@@ -11,17 +11,17 @@ global $fm_MEMBERS_EXISTS;
 // Process settings changes
 
 if(isset($_POST['submit-settings'])){
-	$fmdb->setGlobalSetting('title', stripslashes($_POST['title']));
-	$fmdb->setGlobalSetting('submitted_msg', stripslashes($_POST['submitted_msg']));
-	$fmdb->setGlobalSetting('required_msg', stripslashes($_POST['required_msg']));
-	$fmdb->setGlobalSetting('recaptcha_public', stripslashes($_POST['recaptcha_public']));
-	$fmdb->setGlobalSetting('recaptcha_private', stripslashes($_POST['recaptcha_private']));
-	$fmdb->setGlobalSetting('recaptcha_theme', stripslashes((trim($_POST['recaptcha_theme_custom']) == "" ? $_POST['recaptcha_theme'] : $_POST['recaptcha_theme_custom'])));
-	$fmdb->setGlobalSetting('recaptcha_lang', stripslashes($_POST['recaptcha_lang']));
+	$fmdb->setGlobalSetting('title', stripslashes(sanitize_text_field($_POST['title'])));
+	$fmdb->setGlobalSetting('submitted_msg', stripslashes(sanitize_text_field($_POST['submitted_msg'])));
+	$fmdb->setGlobalSetting('required_msg', stripslashes(sanitize_text_field($_POST['required_msg'])));
+	$fmdb->setGlobalSetting('recaptcha_public', stripslashes(sanitize_text_field($_POST['recaptcha_public'])));
+	$fmdb->setGlobalSetting('recaptcha_private', stripslashes(sanitize_text_field($_POST['recaptcha_private'])));
+	$fmdb->setGlobalSetting('recaptcha_theme', stripslashes((trim($_POST['recaptcha_theme_custom']) == "" ? sanitize_text_field($_POST['recaptcha_theme']) : sanitize_text_field($_POST['recaptcha_theme_custom']))));
+	$fmdb->setGlobalSetting('recaptcha_lang', stripslashes(sanitize_text_field($_POST['recaptcha_lang'])));
 	$fmdb->setGlobalSetting('email_admin', stripslashes($_POST['email_admin'] == "on" ? "YES" : ""));
 	$fmdb->setGlobalSetting('email_reg_users', stripslashes($_POST['email_reg_users'] == "on" ? "YES" : ""));
-	$fmdb->setGlobalSetting('email_subject', stripslashes($_POST['email_subject']));
-	$fmdb->setGlobalSetting('email_from', stripslashes($_POST['email_from']));
+	$fmdb->setGlobalSetting('email_subject', stripslashes(sanitize_text_field($_POST['email_subject'])));
+	$fmdb->setGlobalSetting('email_from', stripslashes(sanitize_text_field($_POST['email_from'])));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ $fm_globalSettings = $fmdb->getGlobalSettings();
 			case 2: ?><div id="message-error" class="error"><p><?php _e("Save failed.", 'wordpress-form-manager');?> </p></div><?php break;
 			default: ?>
 				<?php if(isset($_POST['message']) && trim($_POST['message']) != ""): ?>
-				<div id="message-error" class="error"><p><?php echo stripslashes($_POST['message']);?></p></div>
+				<div id="message-error" class="error"><p><?php echo stripslashes(sanitize_text_field($_POST['message']));?></p></div>
 				<?php endif; ?>
 			<?php
 		} 

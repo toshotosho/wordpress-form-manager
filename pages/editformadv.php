@@ -21,7 +21,7 @@ if($_REQUEST['id']!=""){
 if(isset($_POST['submit-form-settings'])){
 	$formInfo = array();
 	
-	$formInfo['behaviors'] = $_POST['behaviors'];
+	$formInfo['behaviors'] = 			$_POST['behaviors'];
 	
 	$formInfo['form_template'] 			= $_POST['form_template'];
 	$formInfo['email_template'] 		= $_POST['email_template'];
@@ -37,30 +37,41 @@ if(isset($_POST['submit-form-settings'])){
 	$formInfo['exact_form_action']		= $_POST['exact_form_action'];
 	$formInfo['enable_autocomplete']	= ($_POST['enable_autocomplete']=="on"?1:0);
 	
-	$fmdb->updateForm($_POST['fm-form-id'], $formInfo);
+	// sanitize
+	foreach( $formInfo as $k=>$v ){
+		$formInfo[$k] = sanitize_text_field($v);		
+	}
+	
+	$formID = sanitize_text_field($_POST['fm-form-id']);
+	
+	$fmdb->updateForm($formID, $formInfo);
 	
 	$fmdb->showerr = false;
 	$itemTypeErr = array();
 	foreach($allFormItems as $item){
-		if($fmdb->isDataCol($item['unique_name']) 
-			&& $_POST[$item['unique_name']."-dbtype-prev"] != $_POST[$item['unique_name']."-dbtype"]){			
-			$fmdb->updateDataType($form['ID'], $item['unique_name'], stripslashes($_POST[$item['unique_name']."-dbtype"]));
+		$dbTypePrev = sanitize_text_field($_POST[$item['unique_name']."-dbtype-prev"]);
+		$dbType = sanitize_text_field($_POST[$item['unique_name']."-dbtype"]);
+		
+		if($fmdb->isDataCol($item['unique_name']) && $dbTypePrev != $dbType)
+		{				
+			$fmdb->updateDataType($form['ID'], $item['unique_name'], stripslashes($dbType));
 			$itemTypeErr[$item['unique_name']] = false;
 		}
 	}
 	$fmdb->showerr = true;
 	
-	$form = $fmdb->getForm($_REQUEST['id']);
+	$form = $fmdb->getForm(sanitize_text_field($_REQUEST['id']));
 }
 
 
 // Process an updated form definition
 if($fm_DEBUG) $formDef = new fm_form_definition_class(); 
-if($fm_DEBUG && isset($_POST['form-definition'])){	
-	
-	
-	$formInfo = $formDef->createFormInfo($_POST['form-definition']);	
-	$fmdb->updateForm($_POST['fm-form-id'], $formInfo);
+if($fm_DEBUG && isset($_POST['form-definition']))
+{
+	$formDefinition = sanitize_text_field($_POST['form-definition']);
+	$formInfo = $formDef->createFormInfo($formDefinition);	
+	$formID = sanitize_text_field($_POST['fm-form-id']);
+	$fmdb->updateForm($formID, $formInfo);
 } 
 	
 $formTemplateFile = $form['form_template'];
@@ -85,20 +96,19 @@ $fm_globalSettings = $fmdb->getGlobalSettings();
 <input type="submit" name="cancel" class="button secondary" value="<?php _e("Cancel Changes", 'wordpress-form-manager');?>" />
 <input type="submit" name="submit-form-settings" id="submit" class="button-primary" value="<?php _e("Save Changes", 'wordpress-form-manager');?>"  />&nbsp;&nbsp;
 </div>
-
 	<div id="message-container"><?php 
 	if(isset($_POST['message']) && isset($_POST['submit-form-settings']))
-		switch($_POST['message']){
+		switch(intval($_POST['message'])){
 			case 1: ?><div id="message-success" class="updated"><p><strong><?php _e("Settings Saved.", 'wordpress-form-manager');?> </strong></p></div><?php break;
 			case 2: ?><div id="message-error" class="error"><p><?php _e("Save failed.", 'wordpress-form-manager');?> </p></div><?php break;
 			default: ?>
 				<?php if(isset($_POST['message']) && trim($_POST['message']) != ""): ?>
-				<div id="message-error" class="error"><p><?php echo stripslashes($_POST['message']);?></p></div>
+				<div id="message-error" class="error"><p><?php echo stripslashes(sanitize_text_field($_POST['message']));?></p></div>
 				<?php endif; ?>
 			<?php
 		} 
-	?></div>
-
+	?></div>	
+<br/>
 <h3><?php _e("Behavior", 'wordpress-form-manager');?></h3>
 <table class="form-table">
 <?php
@@ -106,7 +116,7 @@ $behaviorList = array();
 foreach($fm_form_behavior_types as $desc => $val)
 	$behaviorList[$val] = $desc;
 helper_option_field('behaviors', __("Behavior Type", 'wordpress-form-manager'), $behaviorList, $form['behaviors'], __("Behavior types other than 'Default' require a registered user", 'wordpress-form-manager'));
-$msg = empty($formInfo['reg_user_only_msg']) ? $fmdb->getGlobalSetting('reg_user_only_msg') : $form['reg_user_only_msg'];
+$msg = $form['reg_user_only_msg']; //empty($formInfo['reg_user_only_msg']) ? $fmdb->getGlobalSetting('reg_user_only_msg') : $form['reg_user_only_msg'];
 helper_text_field('reg_user_only_msg', __("Message displayed to unregistered users", 'wordpress-form-manager'), $msg, __("Include '%s' where you would like the form title to appear", 'wordpress-form-manager'));
 helper_text_field('exact_form_action', __("Exact URL of destination page", 'wordpress-form-manager'), $form['exact_form_action'], __("This page will be loaded after submitting the form, regardless of the 'behavior' setting", 'wordpress-form-manager'));
 helper_checkbox_field('enable_autocomplete', __("Enable autocomplete", 'wordpress-form-manager'), ($form['enable_autocomplete'] == 1));

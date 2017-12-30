@@ -6,7 +6,7 @@
 //post form data
 add_action( 'wp_ajax_fm_post_form', 'fm_postFormAjax' );
 function fm_postFormAjax() {
-	echo fm_doFormBySlug( $_POST[ 'slug' ] );	
+	echo fm_doFormBySlug( sanitize_text_field($_POST[ 'slug' ]) );	
 	die();
 }
 
@@ -26,6 +26,8 @@ function fm_saveFormAjax() {
 		$formInfo['items'][$k]['set'] = 0;
 	}
 	
+	$formID = sanitize_text_field( $_POST['id'] );
+	
 	//check if the shortcode is a duplicate
 	$scID = $fmdb->getFormID( $formInfo[ 'shortcode' ] );
 	if( !( $scID == false 
@@ -33,9 +35,9 @@ function fm_saveFormAjax() {
 			|| trim( $formInfo[ 'shortcode' ] ) == "" ) 
 		) {
 		//get the old shortcode
-		$formInfo[ 'shortcode' ] = $fmdb->getFormShortcode( $_POST[ 'id' ] );			
+		$formInfo[ 'shortcode' ] = $fmdb->getFormShortcode( $formID );			
 		//save the rest of the form
-		$fmdb->updateForm( $_POST[ 'id' ], $formInfo );
+		$fmdb->updateForm( $formID, $formInfo );
 		
 		//now tell the user there was an error
 		printf(
@@ -47,7 +49,7 @@ function fm_saveFormAjax() {
 	}
 			
 	//no errors: save the form, return '1'
-	$fmdb->updateForm( $_POST[ 'id' ], $formInfo );
+	$fmdb->updateForm( $formID, $formInfo );
 	
 	if(!$fm_save_had_error)
 		echo "1";
@@ -74,9 +76,8 @@ function fm_saveSubmissionMetaAjax() {
 }
 
 function fm_saveHelperGatherFormInfo(){
-	global $fm_save_had_error;
+	global $fm_save_had_error;	
 	
-	//collect the posted information
 	$formInfo = array();
 	$formInfo['title'] = $_POST['title'];
 	$formInfo['labels_on_top'] = $_POST['labels_on_top'];
@@ -96,8 +97,13 @@ function fm_saveHelperGatherFormInfo(){
 	$formInfo['auto_redirect_page'] = $_POST['auto_redirect_page'];
 	$formInfo['auto_redirect_timeout'] = $_POST['auto_redirect_timeout'];
 	
+	// sanitize
+	foreach ( $formInfo as $k=>$v ){
+		$formInfo[$k] = sanitize_text_field($v);
+	}
+	
 	//build the notification email list
-	$emailList = explode(",", $_POST['email_list']);
+	$emailList = explode(",", sanitize_text_field($_POST['email_list']));
 	$valid = true;
 	for($x=0;$x<sizeof($emailList);$x++){
 		$emailList[$x] = trim($emailList[$x]);		
@@ -125,23 +131,25 @@ function fm_saveHelperGatherFormInfo(){
 	return $formInfo;
 }
 
+function fm_stripArrayValueSlashes( array $arr ){
+	foreach( $arr as $key => $value ){
+		if ( is_string($value) ){
+			$arr[$key] = stripslashes($value);
+		} else if ( is_array($value) ){
+			$arr[$key] = fm_stripArrayValueSlashes($value);
+		}
+	}
+	return $arr;
+}
+
 function fm_saveHelperGatherItems(){
 	$items = array();
-	if(isset($_POST['items'])){
-		foreach($_POST['items'] as $item){			
-			if(!is_serialized($item['extra'])){ //if not a serialized array, hopefully a parseable php array definition..								
-				$item['extra'] = stripslashes(stripslashes($item['extra'])); //both javascript and $_POST add slashes
-				//make sure the code to be eval'ed is safe (otherwise this would be a serious security risk)
-				if(is_valid_array_expr($item['extra']))				
-					eval("\$newExtra = ".$item['extra'].";"); 				
-				else{
-					/* translators: This error occurs if the save script failed for some reason. */
-					_e("Error: Save posted an invalid array expression.", 'wordpress-form-manager')."<br />";
-					echo $item['extra'];
-					die();
-				}					
-				$item['extra'] = $newExtra;
-			}			
+
+	if(isset($_POST['items']) && (is_array($_POST['items']) || is_object($_POST['items']))){
+		foreach($_POST['items'] as $item){
+			if ( isset( $item['extra'] ) && is_array( $item['extra']) ){				
+				$item[ 'extra' ] = fm_stripArrayValueSlashes( $item['extra'] );
+			}
 			$items[] = $item;			
 		}
 	}
@@ -157,11 +165,12 @@ function fm_newItemAjax(){
 	
 	$olderr = error_reporting();
 	error_reporting(E_ALL ^ E_NOTICE);
+	$fieldType = sanitize_text_field($_POST['type']);
 	
-	$uniqueName = $fmdb->getUniqueItemID($_POST['type']);
+	$uniqueName = $fmdb->getUniqueItemID($fieldType);
 
 	$str = "{".
-		"'html':\"".addslashes(urlencode($fm_display->getEditorItem($uniqueName, $_POST['type'], null)))."\",".
+		"'html':\"".addslashes(urlencode($fm_display->getEditorItem($uniqueName, $fieldType, null)))."\",".
 		"'uniqueName':'".$uniqueName."'".
 		"}";
 	
@@ -176,7 +185,8 @@ function fm_newItemAjax(){
 add_action('wp_ajax_fm_create_form_element', 'fm_createFormElement');
 function fm_createFormElement(){
 	//echo "<pre>".print_r($elem,true)."</pre>";
-	echo fe_getElementHTML($_POST['elem']);
+	$elem = sanitize_text_field($_POST['elem']);
+	echo fe_getElementHTML($elem);
 	die();
 }
 
@@ -187,9 +197,9 @@ function fm_downloadFile(){
 	
 	$tmpDir =  fm_getTmpPath();
 	
-	$formID = $_POST['id'];
-	$itemID = $_POST['itemid'];
-	$subID = $_POST['subid'];
+	$formID = sanitize_text_field($_POST['id']);
+	$itemID = sanitize_text_field($_POST['itemid']);
+	$subID = sanitize_text_field($_POST['subid']);
 	
 	$dataRow = $fmdb->getSubmissionByID($formID, $subID, "`".$itemID."`");
 	
@@ -209,8 +219,8 @@ function fm_downloadAllFiles(){
 	
 	$tmpDir =  fm_getTmpPath();
 	
-	$formID = $_POST['id'];	
-	$itemID = $_POST['itemid'];
+	$formID = sanitize_text_field($_POST['id']);
+	$itemID = sanitize_text_field($_POST['itemid']);
 	
 	$formInfo = $fmdb->getForm($formID);
 	

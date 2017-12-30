@@ -89,7 +89,7 @@ class fm_controlBase{
 	//items can return boolean false to indicate a failure, or NULL to indicate information should not be updated.
 	public function processPost($uniqueName, $itemInfo){
 		if(isset($_POST[$uniqueName]))
-			return fm_strip_tags($_POST[$uniqueName]);
+			return fm_strip_tags(sanitize_text_field($_POST[$uniqueName]));
 		return NULL;
 	}
 	
@@ -148,15 +148,15 @@ class fm_controlBase{
 		return "fm_".$this->getTypeName()."_panel_get";
 	}
 	protected function extraScriptHelper($items){
-		$str = "\"array(";
+		$str = "{";
 		foreach($items as $k=>$v){
 			if(strpos($v, "cb:") !== false)
-				$items[$k] = "'{$k}'=>'\" + ".$this->checkboxScriptHelper(substr($v,3), array('onValue'=>'checked', 'offValue'=>""))." + \"'";
+				$items[$k] = "'{$k}': ".$this->checkboxScriptHelper(substr($v,3), array('onValue'=>'checked', 'offValue'=>""));
 			else
-				$items[$k] = "'{$k}'=>'\" + fm_fix_str(fm_get_item_value(itemID, '{$v}')) + \"'";
+				$items[$k] = "'{$k}': fm_get_item_value(itemID, '{$v}') ";
 		}
 		$str.=implode(", ",$items);
-		$str.= ")\"";
+		$str.= "}";
 		return $str;
 	}
 	//$options: 'onValue', 'offValue'
@@ -171,7 +171,7 @@ class fm_controlBase{
 			$opt[$key] = "fm_get_item_value(itemID, '{$key}')";
 		}
 		$opt['index'] = 'index';
-		$opt['extra'] = "\"array()\"";
+		$opt['extra'] = "\"{}\"";
 		return $opt;
 	}	
 	public function showPanelScript(){	

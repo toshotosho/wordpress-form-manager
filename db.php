@@ -1214,7 +1214,7 @@ class fm_db_class{
 			$fullType = $row['Type'].$charCollate.$null.$default;
 							
 			$fullType = trim($fullType);
-			$this->setCache($formID, $cacheKey, $fullType);
+			$this->setCache(1, $cacheKey, $fullType);
 		}
 		return $fullType;
 	}
@@ -1820,7 +1820,7 @@ class fm_db_class{
 		if($found[2]){
 			echo  "Templates entries: \n";
 			$q = "SELECT `title`, `filename`, `modified` FROM `".$this->templatesTable."`";
-			$results = $this->query($q);
+			$results = $this->get_results($q);
 			foreach ( $results as $row ){
 				echo " Title: ".$row['title']."  Filename: ".$row['filename']."  Modified: ".$row['modified']."\n";				
 			}
@@ -1830,7 +1830,7 @@ class fm_db_class{
 		if($found[3]){
 			echo  "Settings entries: \n";
 			$q = "SELECT * FROM `".$this->settingsTable."`";
-			$results = $this->query($q);
+			$results = $this->get_results($q);
 			foreach ( $results as $row ){
 				echo " Name: ".$row['setting_name']."  Value: ".$row['setting_value']."\n";
 			}			
