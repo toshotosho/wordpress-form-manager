@@ -145,7 +145,7 @@ class fm_db_class{
 	$this->globalSettings = array(
 						'recaptcha_public' => '',
 						'recaptcha_private' => '',
-						'recaptcha_theme' => 'red',
+						'recaptcha_theme' => 'light',
 						'recaptcha_lang' => substr(get_bloginfo('language'), 0, 2),
 						/* translators: the default name of a new form */
 						'title' =>				__("New Form", 'wordpress-form-manager'),

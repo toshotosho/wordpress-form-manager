@@ -1,4 +1,4 @@
-<?php 
+<?php
 /* translators: the following are from the settings page (for the plugin) */
 
 global $fmdb;
@@ -35,7 +35,7 @@ $fm_globalSettings = $fmdb->getGlobalSettings();
 <div id="icon-edit-pages" class="icon32"></div>
 <h2><?php _e("Form Manager Settings", 'wordpress-form-manager');?></h2>
 
-	<div id="message-container"><?php 
+	<div id="message-container"><?php
 	if(isset($_POST['message']))
 		switch($_POST['message']){
 			case 1: ?><div id="message-success" class="updated"><p><strong><?php _e("Settings Saved.", 'wordpress-form-manager');?> </strong></p></div><?php break;
@@ -45,7 +45,7 @@ $fm_globalSettings = $fmdb->getGlobalSettings();
 				<div id="message-error" class="error"><p><?php echo stripslashes(sanitize_text_field($_POST['message']));?></p></div>
 				<?php endif; ?>
 			<?php
-		} 
+		}
 	?></div>
 
 <h3><?php _e("Global E-Mail Notifications", 'wordpress-form-manager');?></h3>
@@ -70,7 +70,7 @@ $fm_globalSettings = $fmdb->getGlobalSettings();
 <?php helper_text_field('recaptcha_public', __("reCAPTCHA Public Key", 'wordpress-form-manager'), htmlspecialchars($fm_globalSettings['recaptcha_public'])); ?>
 <?php helper_text_field('recaptcha_private', __("reCAPTCHA Private Key", 'wordpress-form-manager'), htmlspecialchars($fm_globalSettings['recaptcha_private'])); ?>
 <?php
-$options = array('red' => __("Red", 'wordpress-form-manager'), 'white' => __("White", 'wordpress-form-manager'), 'blackglass' => __("Black", 'wordpress-form-manager'), 'clean' => __("Clean", 'wordpress-form-manager'));
+$options = array('dark' => __("Dark", 'wordpress-form-manager'), 'light' => __("Light", 'wordpress-form-manager'));
 $value = $fm_globalSettings['recaptcha_theme'];
 $found = false;
 ?>
@@ -82,7 +82,7 @@ $found = false;
 			<option value="<?php echo $k;?>" <?php echo ($value==$k)?"selected=\"selected\"":"";?> ><?php echo $v;?></option>
 			<?php if($value == $k): $found = true; endif; ?>
 		<?php endforeach; ?>
-		</select>		
+		</select>
 	</td>
 </tr>
 <?php helper_text_field('recaptcha_lang', __("Language", 'wordpress-form-manager'), htmlspecialchars($fm_globalSettings['recaptcha_lang'])); ?>
