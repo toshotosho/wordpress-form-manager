@@ -58,10 +58,10 @@ if ( ! function_exists( 'add_action' ) ) {
 	header( 'HTTP/1.1 403 Forbidden' );
 	exit();
 }
-// only WP 3.0+
-if ( version_compare( get_bloginfo( 'version' ), '3.0.0', '<' ) )
+// only WP 4.1+
+if ( version_compare( get_bloginfo( 'version' ), '4.1.0', '<' ) )
 	wp_die(
-		__('Form Manager requires WordPress version 3.0 or higher', 'wordpress-form-manager')
+		__('Form Manager requires WordPress version 4.1 or higher', 'wordpress-form-manager')
 		);
 
 // only PHP 5.2+
