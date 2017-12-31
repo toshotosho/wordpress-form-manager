@@ -16,7 +16,7 @@ if(isset($_POST['submit-settings'])){
 	$fmdb->setGlobalSetting('required_msg', stripslashes(sanitize_text_field($_POST['required_msg'])));
 	$fmdb->setGlobalSetting('recaptcha_public', stripslashes(sanitize_text_field($_POST['recaptcha_public'])));
 	$fmdb->setGlobalSetting('recaptcha_private', stripslashes(sanitize_text_field($_POST['recaptcha_private'])));
-	$fmdb->setGlobalSetting('recaptcha_theme', stripslashes((trim($_POST['recaptcha_theme_custom']) == "" ? sanitize_text_field($_POST['recaptcha_theme']) : sanitize_text_field($_POST['recaptcha_theme_custom']))));
+	$fmdb->setGlobalSetting('recaptcha_theme', stripslashes( ( empty( $_POST['recaptcha_theme_custom'] ) ? sanitize_text_field($_POST['recaptcha_theme']) : sanitize_text_field($_POST['recaptcha_theme_custom']))));
 	$fmdb->setGlobalSetting('recaptcha_lang', stripslashes(sanitize_text_field($_POST['recaptcha_lang'])));
 	$fmdb->setGlobalSetting('email_admin', stripslashes($_POST['email_admin'] == "on" ? "YES" : ""));
 	$fmdb->setGlobalSetting('email_reg_users', stripslashes($_POST['email_reg_users'] == "on" ? "YES" : ""));
