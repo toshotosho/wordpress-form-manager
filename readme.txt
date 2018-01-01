@@ -1,3 +1,7 @@
+Notice: This fork (as well as the original plugin) is not safe to use in production environment yet.
+
+I currently don't plan to officially take over or do any extra work on this plugin, except make it a bit more secure and working with reCaptcha v2.
+
 === Form Manager ===
 Contributors: hoffcamp
 Donate link: http://www.campbellhoffman.com/
@@ -10,13 +14,13 @@ Put custom forms into posts and pages using shortcodes. Download submissions in 
 
 == Description ==
 
-Form Manager is a tool for creating forms to collect and download data from visitors to your WordPress site, and keeps track of time/date and registered users as well.  Forms are added to posts or pages using a simple shortcode format, or can be added to your theme with a simple API. 
+Form Manager is a tool for creating forms to collect and download data from visitors to your WordPress site, and keeps track of time/date and registered users as well.  Forms are added to posts or pages using a simple shortcode format, or can be added to your theme with a simple API.
 
 = Features =
 * validation
 * required fields
 * custom acknowledgments
-* e-mail notifications.   
+* e-mail notifications.
 * form display templates
 
 = Supported field types =
@@ -33,13 +37,13 @@ Form Manager is a tool for creating forms to collect and download data from visi
 Subtitles and notes can also be added to the form in any location.
 
 = Publishing a Form =
-Forms are placed within posts or pages.  Look for the Form Manager button in your post editor towards the right (Thanks to [Andrea Bersi](http://www.andreabersi.com)).  
+Forms are placed within posts or pages.  Look for the Form Manager button in your post editor towards the right (Thanks to [Andrea Bersi](http://www.andreabersi.com)).
 
-You can also type in shortcodes yourself.  For example, if your form's slug is 'form-1', put the following within a post or page: 
+You can also type in shortcodes yourself.  For example, if your form's slug is 'form-1', put the following within a post or page:
 
-`[form form-1]`  
-  
-  
+`[form form-1]`
+
+
 <br />
 = Languages =
 
@@ -83,7 +87,7 @@ You can also type in shortcodes yourself.  For example, if your form's slug is '
 = 1.6.47 =
 * Fixed DB access to use $wpdb.
 * Fixed 'hidden fields' to use their default values.
- 
+
 = 1.6.46 =
 * Added DONOTCACHEPAGE to forms (optional). Thanks to Eduardo Aranda for the help!
 * DONOTCACHEPAGE disabled by default for plugins installed at 1.6.45 and prior, enabled by default otherwise.
@@ -106,7 +110,7 @@ You can also type in shortcodes yourself.  For example, if your form's slug is '
 * Added 'Media' option for file uploads (can render as images)
 * Added non-US date format for text input
 * Fixed a bug causing settings saves to fail= 1.6.40 =
-* 'Checked by default' works 
+* 'Checked by default' works
 
 = 1.6.39 =
 * CSV files show URL instead of file name for file uploads
@@ -366,7 +370,7 @@ You can also type in shortcodes yourself.  For example, if your form's slug is '
 * Added separators, notes, and recaptchas to the items you can show/hide with conditions.
 
 = 1.5.4 =
-* Fixed install issues on certain platforms.  Thanks to Metin Kale. 
+* Fixed install issues on certain platforms.  Thanks to Metin Kale.
 
 = 1.5.3 =
 * Added an option to disable the TinyMCE button in the 'Advanced' settings page
@@ -470,7 +474,7 @@ You can also type in shortcodes yourself.  For example, if your form's slug is '
 * Added IP address to submission data
 * Fixed the summary template timestamp label
 
-= 1.4.2 = 
+= 1.4.2 =
 * Fixed e-mail list bug
 
 = 1.4.1 =
@@ -552,14 +556,14 @@ You can also type in shortcodes yourself.  For example, if your form's slug is '
 * Fixed checkbox list 'required' test
 * Added single checkbox 'requried' test
 
-= 1.2.9 = 
+= 1.2.9 =
 * Fixed .csv download bug
 
 = 1.2.8 =
-* Added e-mail notifications. 
+* Added e-mail notifications.
 
 = 1.2.5 =
-* Fixes multisite edit/data page bug. 
+* Fixes multisite edit/data page bug.
 
 = 1.2.4 =
 * Fixes an installation error when starting with a fresh plugin install.
@@ -569,7 +573,7 @@ You can also type in shortcodes yourself.  For example, if your form's slug is '
 
 == Installation ==
 
-Method 1: Activate the 'WordPress Form Manager' plugin through the 'Plugins' menu in WordPress.  
+Method 1: Activate the 'WordPress Form Manager' plugin through the 'Plugins' menu in WordPress.
 
 Method 2: Download the source code for the plugin, and upload the 'wordpress-form-manager' directory to the '/wp-content/plugins/' directory.
 
