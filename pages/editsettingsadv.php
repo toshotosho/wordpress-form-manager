@@ -1,4 +1,4 @@
-<?php 
+<?php
 /* translators: the following are from the advanced advanced settings page (for the plugin) */
 
 global $fmdb;
@@ -11,7 +11,7 @@ global $fm_MEMBERS_EXISTS;
 // Process settings changes
 
 if(isset($_POST['submit-settings'])){
-	
+
 	////////////////////////////////////////////////////////////////////////////////////
 	//Process validators
 	$count = 0;
@@ -23,37 +23,37 @@ if(isset($_POST['submit-settings'])){
 			$val['label'] = stripslashes(sanitize_text_field($_POST['validator-list-item-'.$x.'-label']));
 			$val['message'] = stripslashes(sanitize_text_field($_POST['validator-list-item-'.$x.'-message']));
 			$val['regexp'] = stripslashes(sanitize_text_field($_POST['validator-list-item-'.$x.'-regexp']));
-			
+
 			if($val['name'] == "")
 				$val['name'] = 'validator-'.$x;
-				
+
 			$validators[$val['name']] = $val;
-		}		
+		}
 	}
-	
+
 	$fmdb->setTextValidators($validators);
-	
+
 	////////////////////////////////////////////////////////////////////////////////////
 	//Process shortcode
-	
+
 	$newShortcode = sanitize_title($_POST['shortcode']);
 	$oldShortcode = get_option('fm-shortcode');
 	if($newShortcode != $oldShortcode){
-		remove_shortcode($oldShortcode);	
+		remove_shortcode($oldShortcode);
 		update_option('fm-shortcode', $newShortcode);
 		add_shortcode($newShortcode, 'fm_shortcodeHandler');
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////////////
 	//Process template settings
-	
+
 	$fmdb->setGlobalSetting('template_form', stripslashes(sanitize_text_field($_POST['template_form'])));
 	$fmdb->setGlobalSetting('template_email', stripslashes(sanitize_text_field($_POST['template_email'])));
 	$fmdb->setGlobalSetting('template_summary', stripslashes(sanitize_text_field($_POST['template_summary'])));
-	
+
 	////////////////////////////////////////////////////////////////////////////////////
 	//Other
-	
+
 	update_option('fm-enable-mce-button', $_POST['enable_mce_button']?"YES":"");
 	update_option('fm-file-method', sanitize_text_field($_POST['file_method']));
 	update_option('fm-file-name-format', sanitize_text_field($_POST['file_name_format']));
@@ -64,7 +64,7 @@ if(isset($_POST['submit-settings'])){
 	update_option('fm-shortcode-scripts', $_POST['fm-shortcode-scripts']?"YES":"");
 	update_option('fm-disable-css', $_POST['fm-disable-css']?"YES":"");
 	update_option('fm-disable-cache', $_POST['fm-disable-cache']?"YES":"");
-	
+
 }
 elseif(isset($_POST['remove-template'])){
 	$fm_templates->removeTemplate(sanitize_text_field($_POST['remove-template-filename']));
@@ -107,7 +107,7 @@ function fm_resetTemplatesSubmit(){
 /***************************************************************/
 
 var fm_managedLists = [];
-function fm_createManagedList(_ulID, _callback, _liClass){	
+function fm_createManagedList(_ulID, _callback, _liClass){
 	var data = {
 		ulID: _ulID,
 		count: 0,
@@ -117,15 +117,15 @@ function fm_createManagedList(_ulID, _callback, _liClass){
 	fm_managedLists[_ulID] = data;
 }
 function fm_addManagedListItem(ulID, val){
-	var UL = document.getElementById(ulID);	
+	var UL = document.getElementById(ulID);
 	var newLI = document.createElement('li');
-	var newItemID = ulID + '-item-' + fm_managedLists[ulID].count;	
+	var newItemID = ulID + '-item-' + fm_managedLists[ulID].count;
 	eval("var HTML = " + fm_managedLists[ulID].createCallback + "('" + ulID + "', '" + newItemID + "', val);");
 	newLI.innerHTML = HTML;
 	newLI.id = newItemID;
 	newLI.className = fm_managedLists[ulID].liClass;
 	UL.appendChild(newLI);
-	fm_managedLists[ulID].count++;	
+	fm_managedLists[ulID].count++;
 }
 function fm_removeManagedListItem(itemID){
 	var listItem = document.getElementById(itemID);
@@ -146,7 +146,7 @@ function fm_getManagedListCount(ulID){
 <div id="icon-edit-pages" class="icon32"></div>
 <h2><?php _e("Form Manager Settings - Advanced", 'wordpress-form-manager');?></h2>
 
-	<div id="message-container"><?php 
+	<div id="message-container"><?php
 	if(isset($_POST['message']) && isset($_POST['submit-settings']))
 		switch($_POST['message']){
 			case 1: ?><div id="message-success" class="updated"><p><strong><?php _e("Settings Saved.", 'wordpress-form-manager');?> </strong></p></div><?php break;
@@ -156,7 +156,7 @@ function fm_getManagedListCount(ulID){
 				<div id="message-error" class="error"><p><?php echo stripslashes(sanitize_text_field($_POST['message']));?></p></div>
 				<?php endif; ?>
 			<?php
-		} 
+		}
 	?></div>
 
 <h3><?php _e("Text Validators", 'wordpress-form-manager');?></h3>
@@ -168,36 +168,36 @@ function fm_getManagedListCount(ulID){
 		<td style="width:400px;"><strong><?php _e("Regular Expression", 'wordpress-form-manager');?></strong></td>
 	</tr>
 	</table>
-	<ul id="validator-list" style="padding-bottom:20px;">		
+	<ul id="validator-list" style="padding-bottom:20px;">
 	</ul>
-	<script type="text/javascript" >	
+	<script type="text/javascript" >
 	fm_createManagedList('validator-list', 'fm_new_validator', '');
-	
+
 	function fm_new_validator(ulID, itemID, value){
 		var str = "<input type=\"text\" value=\"" + value.label + "\" name=\"" + itemID + "-label\" style=\"width:200px;\"/>" +
-				"<input type=\"text\" value=\"" + value.message + "\" name=\"" + itemID + "-message\" style=\"width:200px;\" />" + 
-				"<input type=\"text\" value=\"" + value.regexp + "\" name=\"" + itemID + "-regexp\" style=\"width:400px;\" />" + 
+				"<input type=\"text\" value=\"" + value.message + "\" name=\"" + itemID + "-message\" style=\"width:200px;\" />" +
+				"<input type=\"text\" value=\"" + value.regexp + "\" name=\"" + itemID + "-regexp\" style=\"width:400px;\" />" +
 				"<input type=\"hidden\" value=\"" + value.name + "\" name=\"" + itemID + "-name\" />" +
 				"&nbsp;&nbsp;<a onclick=\"fm_removeManagedListItem('" + itemID + "')\" style=\"cursor: pointer\"><?php _e("delete", 'wordpress-form-manager');?></a>";
 		if(value.msg != "")
 			str = str + '<br /><div style="color:#f00;">' + value.msg + '</div>';
 		return str;
 	}
-	<?php 
-	$validators = $fmdb->getTextValidators();	
+	<?php
+	$validators = $fmdb->getTextValidators();
 	foreach($validators as $val){
 		$val['label'] = htmlspecialchars(addslashes($val['label']));
 		$val['message'] = htmlspecialchars(addslashes($val['message']));
 		$val['regexp'] = htmlspecialchars(addslashes($val['regexp']));
-		
+
 		//test to see if the regexp is valid (at least for PHP)
 		$str = $val['regexp'];
 		$msg = "";
 		if(@preg_match($str, "foo") === false) $msg = __("The regular expression is invalid.", 'wordpress-form-manager');
-		
+
 		echo "var validator = { name: '".$val['name']."', label: '".$val['label']."', message: '".$val['message']."', regexp: '".$val['regexp']."', msg: ".json_encode($msg)." };\n";
 		echo "fm_addManagedListItem('validator-list', validator);\n";
-	}	
+	}
 	?>
 	var fm_blankItem = { name: "", label: "", message: "", regexp: "" };
 	</script>
@@ -214,15 +214,15 @@ function fm_getManagedListCount(ulID){
 <h3><?php _e("Display Templates", 'wordpress-form-manager');?></h3>
 <table class="form-table">
 <?php helper_option_field('template_form', __("Default Form Template", 'wordpress-form-manager'), $templateList['form'], $fm_globalSettings['template_form']); ?>
-<?php helper_option_field('template_email', __("Default E-Mail Template", 'wordpress-form-manager'), $templateList['email'], $fm_globalSettings['template_email']); ?>
-<?php helper_option_field('template_summary', __("Default Summary Template", 'wordpress-form-manager'), $templateList['summary'], $fm_globalSettings['template_summary']); ?>
+<?php helper_option_field('template_email', __("Default E-Mail Template", 'wordpress-form-manager'), $templateList['email'], ! empty($fm_globalSettings['template_email']) ? $fm_globalSettings['template_email'] : '' ); ?>
+<?php helper_option_field('template_summary', __("Default Summary Template", 'wordpress-form-manager'), $templateList['summary'], !empty ($fm_globalSettings['template_summary']) ? $fm_globalSettings['template_summary'] : ''); ?>
 </table>
 <input type="submit" class="preview button" name="reset-templates" value="<?php _e("Reset Templates", 'wordpress-form-manager');?>" onclick="return fm_resetTemplatesSubmit()" />
 <table class="form-table">
 <?php foreach($templateFiles as $file=>$template): ?>
 <tr>
 	<th scope="row"><label style="width:400px;">
-	<?php echo $template['template_name'];?> <br /> 
+	<?php echo $template['template_name'];?> <br />
 	<?php echo $file; ?>
 	</label></th>
 <td><input type="submit" name="remove-template" value="<?php _e("Remove", 'wordpress-form-manager');?>"  onclick="return fm_submitRemoveTemplate('<?php echo format_string_for_js($template['template_name']);?>', '<?php echo $file;?>')" /></td></tr>
@@ -247,7 +247,7 @@ file_method
 <table class="form-table">
 <?php $fileMethods = array(
 	'auto' => __('auto', 'wordpress-form-manager'),
-	'direct' => __('direct', 'wordpress-form-manager'), 
+	'direct' => __('direct', 'wordpress-form-manager'),
 	'ssh' => __('ssh', 'wordpress-form-manager'),
 	'ftpext' => __('ftpext', 'wordpress-form-manager'),
 	'ftpsockets' => __('ftpsockets', 'wordpress-form-manager'),

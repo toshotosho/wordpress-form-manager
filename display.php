@@ -32,28 +32,28 @@ function displayForm($formInfo, $options=array(), $values=array()){
 
 	$templateFile = $formInfo['form_template'];
 	if($templateFile == '') $templateFile = $fmdb->getGlobalSetting('template_form');
-	if($templateFile == '') $templateFile = get_option('fm-default-form-template');	
-	
-	// generate the form 
+	if($templateFile == '') $templateFile = get_option('fm-default-form-template');
+
+	// generate the form
 	if(file_exists($fm_templates->templatesDir.'/'.$templateFile))
 		$str = $this->displayFormTemplate($templateFile, $formInfo, $options, $values);
 	else
 		$str = $this->displayFormTemplate(get_option('fm-default-form-template'), $formInfo, $options, $values);
 
 	$str .= $this->displayFormEtc( $formInfo );
-	
+
 	return $str;
 }
 
 function displayFormEtc( $formInfo ){
 	global $fm_DEBUG;
-	
+
 	$str = "";
-	
+
 	// now that we have completely generated the form, set a flag
-	$this->formsDisplayed[$formInfo['ID']] = true;	
-	
-	return $str;	
+	$this->formsDisplayed[$formInfo['ID']] = true;
+
+	return $str;
 }
 
 
@@ -61,10 +61,10 @@ function displayFormEtc( $formInfo ){
 function displayFormBare($formInfo, $options=array(), $values=array()){
 	global $msg;
 	global $fmdb;
-	global $fm_controls;	
-	
+	global $fm_controls;
+
 	////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	$defaults = array('label_width' => '200',
 						'ul_class' => '',
 						'li_class' => '',
@@ -72,52 +72,52 @@ function displayFormBare($formInfo, $options=array(), $values=array()){
 						'include_types' => array(),
 						'display_callbacks' => array(),
 						'unique_name_suffix' => '',
-					);	
+					);
 	foreach($defaults as $key => $default)
 		if(!isset($options[$key])) $options[$key] = $default;
-		
+
 	///////////////////////////////////////////////////////////////////////////////////////
-		
+
 	$str.= "<ul".($options['ul_class'] != '' ? " class=\"".$options['ul_class']."\"" : "").">\n";
-	
+
 		foreach($formInfo['items'] as $item){
-			
+
 			//if override $item['extra']['value'] if the unique_name is in $values
 			if(isset($values[$item['unique_name']]))
 				$item['extra']['value'] = $values[$item['unique_name']];
-			
+
 			if( (!in_array($item['type'], $options['exclude_types']) || in_array($item['type'], $options['include_types']))
 				&& !fm_is_private_item( $item )
 			){
-			
+
 				$str.= "<li".($options['li_class'] != '' ? " class=\"".$options['li_class']."\"" : "").">";
-				
+
 				////////////////////////////////////////////////////////////////////////////////////////
-				
+
 					$str.='<table><tr>';
 					$str.='<td style="width:'.$options['label_width'].'px"><label>'.(trim($item['nickname']) == "" ? $item['label'] : $item['nickname']);
 					if($item['required']=='1')	$str.= '&nbsp;<em>*</em>';
 					$str.='</label>';
 					$str.='</td>';
 					$str.='<td>';
-					
+
 					reset($options['display_callbacks']);
 					if(array_key_exists($item['type'], $options['display_callbacks']))
 						$str.= call_user_func($options['display_callbacks'][$item['type']], $item['unique_name'].$options['unique_name_suffix'], $item);
 					else
 						$str.= $fm_controls[$item['type']]->showItem($item['unique_name'].$options['unique_name_suffix'], $item);
-					
+
 					$str.='</td>';
-					$str.='</tr></table>';			
-							
+					$str.='</tr></table>';
+
 				////////////////////////////////////////////////////////////////////////////////////////
-				
+
 				$str.= "</li>\n";
 			}
 		}
-	
-	$str.= "</ul>\n";	
-	
+
+	$str.= "</ul>\n";
+
 	return $str;
 }
 
@@ -127,21 +127,21 @@ function displayFormTemplate($template, $formInfo, $options=array(), $values=arr
 	global $fm_controls;
 	global $fm_templates;
 	global $fm_template_controls;
-	
+
 	$templateInfo = $fm_templates->getTemplateAttributes($template);
-	
-	//if override $item['extra']['value'] if the unique_name is in $values	
+
+	//if override $item['extra']['value'] if the unique_name is in $values
 	foreach($formInfo['items'] as $k=>$item)
 		if(isset($values[$item['unique_name']]))
-			$formInfo['items'][$k]['extra']['value'] = $values[$item['unique_name']];	
-			
+			$formInfo['items'][$k]['extra']['value'] = $values[$item['unique_name']];
+
 	if(!isset($options['class'])) $options['class'] = 'fm-form';
-		
+
 	$this->currentFormInfo = $formInfo;
 	$this->currentFormOptions = $options;
 	$this->currentFormValues = $values;
-	$this->currentItemIndex = -1;		
-	
+	$this->currentItemIndex = -1;
+
 	if(isset($templateInfo['options']))
 		foreach($templateInfo['options'] as $option){
 			$varName = substr($option['var'],1);
@@ -149,21 +149,21 @@ function displayFormTemplate($template, $formInfo, $options=array(), $values=arr
 			else $value = $fm_template_controls[$option['type']]->parseStoredValue($formInfo['template_values'][$varName], $option);
 			${$varName} = $value;
 		}
-	
+
 	$str = "";
-			
-	ob_start();	
-	
+
+	ob_start();
+
 	// load the template
-	include $fm_templates->templatesDir."/".$template;	
-	
+	include $fm_templates->templatesDir."/".$template;
+
 	$str.= ob_get_contents();
 	ob_end_clean();
-	
+
 	// show the support scripts, validation, etc. only once
 	$scripts = new fm_script_display_class($formInfo, $options);
-	
-	if ( get_option( 'fm-shortcode-scripts') != 'YES' && !isset( $this->formsDisplayed[$formInfo['ID']] ) ){	
+
+	if ( get_option( 'fm-shortcode-scripts') != 'YES' && !isset( $this->formsDisplayed[$formInfo['ID']] ) ){
 		add_action('wp_footer', array($scripts, 'showBeforeFormScripts'));
 		add_action('wp_footer', array($scripts, 'showAfterFormScripts'));
 	} else if( get_option( 'fm-shortcode-scripts' ) == 'YES' ) {
@@ -172,7 +172,7 @@ function displayFormTemplate($template, $formInfo, $options=array(), $values=arr
 		$scripts-> showAfterFormScripts();
 		$str.= ob_get_clean();
 	}
-	
+
 	return $str;
 }
 
@@ -182,9 +182,9 @@ function displayFormTemplate($template, $formInfo, $options=array(), $values=arr
 function displayDataSummary($type, $formInfo, $data){
 	global $fmdb;
 	global $fm_templates;
-	
+
 	$templateFile = "";
-	
+
 	if($type == 'email'){
 		$templateFile = $formInfo['email_template'];
 		if($templateFile == '') $templateFile = $fmdb->getGlobalSetting('template_email');
@@ -195,25 +195,25 @@ function displayDataSummary($type, $formInfo, $data){
 		if($templateFile == '') $templateFile = $fmdb->getGlobalSetting('template_summary');
 		if($templateFile == '') $templateFile = get_option('fm-default-summary-template');
 	}
-	else if($fm_templates->isTemplate($type))	
+	else if($fm_templates->isTemplate($type))
 		$templateFile = $type;
-	else if($fm_templates->isTemplate($type.".php"))	
+	else if($fm_templates->isTemplate($type.".php"))
 		$templateFile = $type.".php";
-	
+
 	if($templateFile != "")
 		return $this->displayDataSummaryTemplate($templateFile, $formInfo, $data);
-	
-	return "The template '".$type."' was not found.";	
+
+	return "The template '".$type."' was not found.";
 }
 
 function displayDataSummaryNotemplate($formInfo, $data, $before = "", $after = "", $userAndTimestamp = false){
 	global $fm_controls;
 	global $fmdb;
-	
+
 	if( $formInfo['summary_hide_empty'] == '1' ){
 		fm_helper_cleanEmptyFields($formInfo, $data);
 	}
-	
+
 	$str = "";
 	$str.= "<div class=\"fm-data-summary\">\n";
 	$str.= $before;
@@ -237,19 +237,19 @@ function displayDataSummaryNotemplate($formInfo, $data, $before = "", $after = "
 
 function displayDataSummaryTemplate($template, $formInfo, $data){
 	global $fm_templates;
-	
+
 	if( $formInfo['summary_hide_empty'] == '1' ){
 		fm_helper_cleanEmptyFields($formInfo, $data);
 	}
-	
+
 	$this->currentFormInfo = $formInfo;
 	$this->currentFormData = $data;
 	$this->currentItemIndex = -1;
-	
+
 	ob_start();
-	
+
 	include $fm_templates->templatesDir."/".$template;
-	
+
 	$str = ob_get_contents();
 	ob_end_clean();
 	return $str;
@@ -260,27 +260,27 @@ function displayDataSummaryTemplate($template, $formInfo, $data){
 
 function getEditorItem($uniqueName, $type, $itemInfo, $isMeta = false){
 	global $fm_controls;
-	
+
 	if(isset($fm_controls[$type]))
 		$control = $fm_controls[$type];
 	else
 		$control = $fm_controls['default'];
-	
+
 	// a new item
 	if($itemInfo == null) $itemInfo = $control->itemDefaults();
-	
+
 	$itemInfo['type'] = $type;
 	$itemInfo['unique_name'] = $uniqueName;
-	
+
 	$str = "<table class=\"editor-item-table\">".
-			"<tr>".	
+			"<tr>".
 			"<td class=\"editor-item-container\">".$control->showEditorItem($uniqueName, $itemInfo)."</td>".
 			"<td class=\"editor-item-buttons\"><a class=\"edit-form-button\" onclick=\"fm_showEditDivCallback('{$uniqueName}','".$control->getShowHideCallbackName()."')\" id=\"{$uniqueName}-edit\"/>".__("Edit",'wordpress-form-manager')."</a></td>".
 			"<td class=\"editor-item-buttons\">"."<a class=\"edit-form-button\" onclick=\"fm_deleteItem('{$uniqueName}')\">".__("Delete",'wordpress-form-manager')."</a>"."</td>".
 			"</tr>".
 			"</table>".
 			"<input type=\"hidden\" id=\"{$uniqueName}-type\" value=\"{$type}\" />";
-	
+
 	return $str;
 }
 
@@ -291,35 +291,37 @@ class fm_script_display_class{
 	var $formInfo;
 	var $options;
 	var $counter;
-	
+
 	function __construct($_formInfo, $_options){
 		$this->formInfo = &$_formInfo;
 		$this->options = $_options;
 	}
-	
+
 	public function showBeforeFormScripts(){
 		global $fm_controls;
-		
+
 		$formInfo = &$this->formInfo;
 		$options = $this->options;
-		
+
 		foreach ( $fm_controls as $control ){
-			$control->showUserScripts();	
+			$control->showUserScripts();
 		}
-		
+
 		?><script type="text/javascript">
 //<![CDATA[
 
-fm_current_form = <?php echo $formInfo['ID'];?>;	
+fm_current_form = <?php echo $formInfo['ID'];?>;
 <?php
 	foreach($formInfo['items'] as $item){
 		$item['required_callback'] = $fm_controls[$item['type']]->getRequiredValidatorName();
 		$item['required_msg'] = sprintf($formInfo['required_msg'], $item['label']);
 		$item['validation_callback'] = $fm_controls[$item['type']]->getGeneralValidatorName();
-		$item['validation_msg'] = sprintf($fm_controls[$item['type']]->getGeneralValidatorMessage($item['extra']['validation']), $item['label']);
-		$item['validation_type'] = $item['extra']['validation'];
+    if (!empty($item['extra']['validation'])) {
+      $item['validation_msg'] = sprintf($fm_controls[$item['type']]->getGeneralValidatorMessage($item['extra']['validation']), $item['label']);
+      $item['validation_type'] = $item['extra']['validation'];
+    }
 		$item['getter_script'] = $fm_controls[$item['type']]->getElementValueGetterName();
-		
+
 		echo "fm_register_form_item('".$formInfo['ID']."', ".json_encode($item).");\n";
 	}
 ?>
@@ -327,47 +329,47 @@ fm_current_form = <?php echo $formInfo['ID'];?>;
 //]]>
 </script><?php
 	}
-	
+
 	public function showAfterFormScripts(){
 		global $fm_controls;
-		
+
 		$formInfo = &$this->formInfo;
 		$options = $this->options;
-		
+
 		?><script type="text/javascript">
 /* <![CDATA[ */
 fm_register_form(<?php echo $formInfo['ID'];?>);
 <?php
-	//below is a workaround: the 'default value' for a text item is displayed as a placeholder.  In some instances, this should be an actual value in the field.  The script below takes care of this.	
+	//below is a workaround: the 'default value' for a text item is displayed as a placeholder.  In some instances, this should be an actual value in the field.  The script below takes care of this.
 	if(isset($options['use_placeholders']) && $options['use_placeholders'] === false)
 		echo "fm_remove_placeholders();\n"; //this will convert placeholders into values; used to re-populate a form after a bad submission, for user profile style, etc., where the 'value' field needs to be the fields' value rather than a placeholder
-		
+
 	//condition handlers
-	
+
 	echo $this->getConditionHandlerScripts();
 ?>
 /* ]]> */
 </script><?php
-	
+
 	}
-	
+
 	protected function getValidConditions($conditions){
 		foreach($conditions as $key => $cond) {
 			if($cond['rule'] == "none") unset($conditions[$key]);
-		}	
+		}
 		return $conditions;
 	}
-	
+
 	protected function getConditionHandlerScripts(){
-				
+
 		$formInfo = &$this->formInfo;
-		
+
 		if(!is_array($formInfo['conditions'])) return "";
-		
+
 		$formInfo['conditions'] = $this->getValidConditions($formInfo['conditions']);
-		
+
 		if(sizeof($formInfo['conditions']) == 0) return "";
-		
+
 		//build an array of the item types and nicknames
 		$itemTypes = array();
 		$itemNames = array();
@@ -377,21 +379,21 @@ fm_register_form(<?php echo $formInfo['ID'];?>);
 			$itemNames[$item['unique_name']] = ($item['nickname'] != "" ? $item['nickname'] : $item['unique_name']);
 			$itemObjects[$item['unique_name']] = $item;
 		}
-		
+
 		$itemDependents = array();
-	
+
 		$str = "";
 		$str.= "var temp;\n";
 		//loop through each condition, making a javascript function to test if the condition is satisfied
 		foreach($formInfo['conditions'] as $condition){
 			$fn = str_replace('-', '_', $condition['id']);
 			$str.="function ".$fn."(){\n";
-			
+
 			//first figure out how to get the value from the item, based on its type
 			for($x=0;$x<sizeof($condition['tests']);$x++){
 				$test = $condition['tests'][$x];
 				$str.="var t".$x." = ";
-				switch($itemTypes[$test['unique_name']]){				
+				switch($itemTypes[$test['unique_name']]){
 					case 'checkbox':
 						$str.= "document.getElementById('".$test['unique_name']."').checked;\n";
 						break;
@@ -421,25 +423,25 @@ fm_register_form(<?php echo $formInfo['ID'];?>);
 					case 'file':
 						$str.= "document.getElementById('".$test['unique_name']."').value;\n";
 						break;
-					default:					
+					default:
 						$str.= "false;\n";
 				}
 			}
 
 			//now do the logical tests
-			
+
 			$str.="var res = (";
 			for($x=0;$x<sizeof($condition['tests']);$x++){
 				$test = $condition['tests'][$x];
 				if($x>0) $str.= ($test['connective'] == 'and' ? " && " : " || ");
-				
+
 				if($test['unique_name'] == '__always__'){
 					$str.= 'true';
 				}
 				elseif($test['unique_name'] == '__never__'){
 					$str.= 'false';
 				}
-				elseif($itemTypes[$test['unique_name']] == 'custom_list' 
+				elseif($itemTypes[$test['unique_name']] == 'custom_list'
 				&& $itemObjects[$test['unique_name']]['extra']['list_type'] == 'checkbox') {
 					switch($test['test']){
 						case "eq":			$str.= "fm_array_contains( t".$x.", '".$test['val']."' )";
@@ -447,19 +449,19 @@ fm_register_form(<?php echo $formInfo['ID'];?>);
 						case "neq":			$str.= "(! fm_array_contains( t".$x.", '".$test['val']."' ))";
 							break;
 					}
-				} else {				
+				} else {
 					switch($test['test']){
-						case "eq": 			$str.= "t".$x." == '".$test['val']."'"; 
+						case "eq": 			$str.= "t".$x." == '".$test['val']."'";
 							break;
 						case "neq":			$str.= "t".$x." != '".$test['val']."'";
 							break;
-						case "lt":			$str.= "(t".$x." < ".$test['val']." && t".$x." !== '')"; 
+						case "lt":			$str.= "(t".$x." < ".$test['val']." && t".$x." !== '')";
 							break;
-						case "gt":			$str.= "(t".$x." > ".$test['val']." && t".$x." !== '')"; 
+						case "gt":			$str.= "(t".$x." > ".$test['val']." && t".$x." !== '')";
 							break;
-						case "lteq":		$str.= "(t".$x." <= ".$test['val']." && t".$x." !== '')"; 
+						case "lteq":		$str.= "(t".$x." <= ".$test['val']." && t".$x." !== '')";
 							break;
-						case "gteq":		$str.= "(t".$x." >= ".$test['val']." && t".$x." !== '')"; 
+						case "gteq":		$str.= "(t".$x." >= ".$test['val']." && t".$x." !== '')";
 							break;
 						case "isempty":		$str.= "t".$x." === ''";
 							break;
@@ -469,19 +471,19 @@ fm_register_form(<?php echo $formInfo['ID'];?>);
 							break;
 						case "unchecked": 	$str.= "!t".$x;
 							break;
-						default:			$str.= "false";							
+						default:			$str.= "false";
 							break;
 					}
 				}
 			}
 			$str.=");\n";
-			
-			
+
+
 			//last do the action corresponding to the condition on the listed items
 			foreach($condition['items'] as $item){
 				switch($condition['rule']){
 					case "onlyshowif":
-						$str.= "document.getElementById('fm-item-".$itemNames[$item]."').style.display = res ? 'block' : 'none';\n";	
+						$str.= "document.getElementById('fm-item-".$itemNames[$item]."').style.display = res ? 'block' : 'none';\n";
 						break;
 					case "showif":
 						$str.= "if(res) document.getElementById('fm-item-".$itemNames[$item]."').style.display = 'block';\n";
@@ -491,7 +493,7 @@ fm_register_form(<?php echo $formInfo['ID'];?>);
 						break;
 					case "requireonlyif":
 						$str.= "fm_set_required('".$item."', (res ? 1 : 0));\n";
-						break;	
+						break;
 					case "addrequireif":
 						$str.= "if(res) fm_set_required('".$item."', 1);\n";
 						break;
@@ -500,10 +502,10 @@ fm_register_form(<?php echo $formInfo['ID'];?>);
 						break;
 				}
 			}
-			
+
 			$str.="}\n";
-			
-			//this keeps track of which test functions we create depend on which items, so we can make an onchange event appropriately. 
+
+			//this keeps track of which test functions we create depend on which items, so we can make an onchange event appropriately.
 			foreach($condition['tests'] as $test){
 				switch($test['unique_name']){
 					case '__always__':
@@ -514,35 +516,35 @@ fm_register_form(<?php echo $formInfo['ID'];?>);
 						$itemDependents[$test['unique_name']][] = $fn;
 				}
 			}
-			
+
 			//make sure the form displays according to the conditions initially, so run the tests in order
 			$str.= $fn."();\n";
 		}
-			
+
 		//now set the onchange event handlers
-		foreach($itemDependents as $uniqueName => $itemDeps){			
-			
+		foreach($itemDependents as $uniqueName => $itemDeps){
+
 			// build the event handler
 			$tmpFnName = "fn_".uniqid();
-			$str.= "function ".$tmpFnName."() { \n";			
+			$str.= "function ".$tmpFnName."() { \n";
 				foreach($itemDeps as $dep){
 					$str.= $dep."();\n";
 				}
 				// a workaround for simulating the HTML5 placeholder attribute in text fields
 				$str.= "this.ph_hasEdit = true;\n";
 				$str.= "}\n";
-			
+
 			$itemType = $itemTypes[ $uniqueName ];
-			
+
 			// IE behaves strangely, as per usual, so we need to hook into different events for IE
 				global $is_IE;
 				if ( $is_IE )
 					$changeEvent = 'onclick';
 				else
 					$changeEvent = 'onchange';
-			
+
 			switch( $itemType ){
-				
+
 				case 'text':
 				case 'textarea':
 					$str.= "document.getElementById('".$uniqueName."').onchange = ".$tmpFnName.";\n";
@@ -571,8 +573,8 @@ fm_register_form(<?php echo $formInfo['ID'];?>);
 				default:
 					break;
 			}
-		}	
-	
+		}
+
 		return $str;
 	}
 }
@@ -586,8 +588,8 @@ function fm_form_start(){
 	echo "<form enctype=\"multipart/form-data\" class=\"".$fm_display->currentFormOptions['class']."\" ".
 			"method=\"post\" action=\"".$fm_display->currentFormOptions['action']."\" ".
 			"name=\"fm-form-".$fm_display->currentFormInfo['ID']."\" id=\"fm-form-".$fm_display->currentFormInfo['ID']."\" " .
-			($fm_display->currentFormInfo['enable_autocomplete']=="1"?"autocomplete=\"on\"":""). 
-			" >\n";	
+			($fm_display->currentFormInfo['enable_autocomplete']=="1"?"autocomplete=\"on\"":"").
+			" >\n";
 }
 function fm_form_class(){
 	global $fm_display;
@@ -605,7 +607,7 @@ function fm_form_end(){
 function fm_form_hidden(){
 	global $fm_display;
 	global $post;
-	
+
 	$str = "<input type=\"hidden\" name=\"fm_nonce\" id=\"fm_nonce\" value=\"".wp_create_nonce('fm-nonce')."\" />\n";
 	$str.= "<input type=\"hidden\" name=\"fm_id\" id=\"fm_id\" value=\"".$fm_display->currentFormInfo['ID']."\" />\n";
 	// this is to prevent submitting the same instance of a form more than once
@@ -630,7 +632,7 @@ function fm_form_the_title(){
 
 function fm_form_the_submit_btn(){
 	global $fm_display;
-	if(!isset($fm_display->currentFormOptions['show_submit']) 
+	if(!isset($fm_display->currentFormOptions['show_submit'])
 	|| $fm_display->currentFormOptions['show_submit'] !== false)
 	{
 		return "<input type=\"submit\" ".
@@ -660,13 +662,13 @@ function fm_form_have_items(){
 	global $fm_display;
 	$done = false;
 	$index = $fm_display->currentItemIndex;
-	
+
 	while(!$done) {
 		$index++;
 		if( $index >= sizeof($fm_display->currentFormInfo['items']) ) {
 			return false;
 		}
-		
+
 		$item = $fm_display->currentFormInfo['items'][$index];
 		if( $item['set'] == 0 ) {
 			$done = true;
@@ -689,9 +691,9 @@ function fm_form_the_label(){
 function fm_form_the_input(){
 	global $fm_display;
 	global $fm_controls;
-	$item = fm_form_get_item(); 
+	$item = fm_form_get_item();
 	if(isset($fm_display->currentFormValues[$item['unique_name']]))
-		$item['extra']['value'] = $fm_display->currentFormValues[$item['unique_name']];				
+		$item['extra']['value'] = $fm_display->currentFormValues[$item['unique_name']];
 	return $fm_controls[$item['type']]->showItem($item['unique_name'], $item);
 }
 function fm_form_the_ID(){
@@ -723,7 +725,7 @@ function fm_form_the_nickname(){
 
 function fm_form_get_item(){
 	global $fm_display;
-	return $fm_display->currentFormInfo['items'][$fm_display->currentItemIndex]; 
+	return $fm_display->currentFormInfo['items'][$fm_display->currentItemIndex];
 }
 
 function fm_form_get_item_input($nickname){
@@ -731,7 +733,7 @@ function fm_form_get_item_input($nickname){
 	global $fm_controls;
 	$item = fm_summary_get_item($nickname);
 	if(isset($fm_display->currentFormValues[$item['unique_name']]))
-		$item['extra']['value'] = $fm_display->currentFormValues[$item['unique_name']];				
+		$item['extra']['value'] = $fm_display->currentFormValues[$item['unique_name']];
 	return $fm_controls[$item['type']]->showItem($item['unique_name'], $item);
 }
 
