@@ -16,10 +16,9 @@ class fm_recaptchaControl extends fm_controlBase{
 	public function showItem($uniqueName, $itemInfo){
 		global $fmdb;
 		$publickey = $fmdb->getGlobalSetting('recaptcha_public');
-		if($publickey == "") return __("(No reCAPTCHA API public key found)", 'wordpress-form-manager');
-
-		if(!function_exists('recaptcha_get_html'))
-			require_once('recaptcha/recaptchalib.php');
+		if ( empty($publickey) ) {
+      return __("(No reCAPTCHA API public key found)", 'wordpress-form-manager');
+    }
 
 		$theme = $itemInfo['extra']['theme'];
 		$themeList = $this->getThemeList();
