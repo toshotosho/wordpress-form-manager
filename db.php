@@ -41,7 +41,6 @@ class fm_db_class{
 		$this->settingsTable = $settingsTable;
 		$this->templatesTable = $templatesTable;
 		$this->cachedInfo = array();
-		$this->lastPostFailed = false;
 		$this->showerr = true;
 		$this->initDefaultSettings();
 
