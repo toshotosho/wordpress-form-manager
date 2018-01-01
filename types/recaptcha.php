@@ -27,16 +27,27 @@ class fm_recaptchaControl extends fm_controlBase{
 			$theme = $fmdb->getGlobalSetting('recaptcha_theme');
 		}
 
-		$lang = $fmdb->getGlobalSetting('recaptcha_lang');
-		if ( $lang == "" ) $lang = "en";
-
-		return "<div dir=\"ltr\">" .
-				"<script type=\"text/javascript\"> var RecaptchaOptions = { ".
-				"theme : '".$theme."', ".
-				"lang : '".$lang."', tabindex : 100 }; </script>".
-				recaptcha_get_html($publickey).
-				(isset($_POST['recaptcha_challenge_field'])?"<br /> <em> ".__("The reCAPTCHA was incorrect.", 'wordpress-form-manager')." </em>":"") .
-				"</div>";
+		return sprintf('
+      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+      <div class="g-recaptcha"
+        data-sitekey = "%s"
+        data-theme = "%s"
+        data-type = "%s"
+        data-size = "%s"
+        data-tabindex = "%s"
+        data-callback = "%s"
+        data-expired-callback = "%s"
+        data-error-callback = "%s"
+      ></div>',
+      $publickey,
+      $theme,
+      'image',
+      'normal',
+      100,
+      '',
+      '',
+      ''
+    );
 	}
 
 	public function processPost($uniqueName, $itemInfo){
@@ -45,20 +56,19 @@ class fm_recaptchaControl extends fm_controlBase{
 		$privatekey = $fmdb->getGlobalSetting('recaptcha_private');
 		if($privatekey == "" || $publickey == "" ) return "";
 
-		if(!function_exists('recaptcha_check_answer'))
-			require_once('recaptcha/recaptchalib.php');
+		$resp = $this->recaptcha_v2_check(
+      $privatekey,
+  		$_POST["g-recaptcha-response"],
+      $_SERVER["REMOTE_ADDR"]
+    );
 
-		$resp = recaptcha_check_answer ($privatekey,
-									$_SERVER["REMOTE_ADDR"],
-									$_POST["recaptcha_challenge_field"],
-									$_POST["recaptcha_response_field"]);
-
-		//return false;
-		if (!$resp->is_valid === true) {
-			// What happens when the CAPTCHA was entered incorrectly
-			$this->err = $resp->error;
-				return false;
-		}
+    if ( is_wp_error( $resp ) ) {
+      $this->err = $resp->get_error_message();
+        return false;
+    } elseif ( ! $resp->is_valid === true ) {
+      $this->err = $resp->error;
+        return false;
+    }
 		$this->err = false;
 		return "";
 	}
@@ -125,5 +135,61 @@ class fm_recaptchaControl extends fm_controlBase{
 	protected function getPanelKeys(){
 		return array('label');
 	}
+
+  function recaptcha_v2_check ($secret, $response, $remoteip) {
+    if ($secret == null || $secret == '') {
+      die ("To use reCAPTCHA you must get an API key from <a href='https://www.google.com/recaptcha/admin/create'>https://www.google.com/recaptcha/admin/create</a>");
+    }
+
+    if ($remoteip == null || $remoteip == '') {
+      die ("For security reasons, you must pass the remote ip to reCAPTCHA");
+    }
+
+    //discard spam submissions
+    if ($response == null || strlen($response) == 0) {
+      $recaptcha_response = new \stdClass();
+      $recaptcha_response->is_valid = false;
+      $recaptcha_response->error = 'incorrect-captcha-sol';
+      return $recaptcha_response;
+    }
+
+    $call = wp_remote_post( 'https://www.google.com/recaptcha/api/siteverify', array(
+      'method' => 'POST',
+      'timeout' => 45,
+      'redirection' => 5,
+      'httpversion' => '1.0',
+      'blocking' => true,
+      'headers' => array(),
+      'body' => array (
+        'secret'    => $secret,
+        'remoteip'  => $remoteip,
+        'response'  => $response
+      ),
+      'cookies' => array()
+    ) );
+
+    // Check the response code
+    $response_code       = wp_remote_retrieve_response_code( $call );
+    $response_message = wp_remote_retrieve_response_message( $call );
+
+    if ( 200 != $response_code && ! empty( $response_message ) ) {
+      return new WP_Error( $response_code, $response_message );
+    } elseif ( 200 != $response_code ) {
+      return new WP_Error( $response_code, 'Unknown error occurred' );
+    } else {
+      $body = json_decode( wp_remote_retrieve_body( $call ) );
+
+      $recaptcha_response = new \stdClass();
+
+      if ($body->success) {
+        $recaptcha_response->is_valid = true;
+      } else {
+        $recaptcha_response->is_valid = false;
+        $recaptcha_response->error = ! empty( $body->error_codes ) ? implode(', ', $body->error_codes) : 'recaptcha error';
+      }
+      return $recaptcha_response;
+    }
+  }
+
 }
 ?>
