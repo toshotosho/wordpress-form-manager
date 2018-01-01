@@ -8,41 +8,41 @@ class fm_advanced_email_class{
 	var $formInfo;
 	var $formData;
 	var $shortcodeList = array('admin',
-								'user',								
+								'user',
 								'timestamp',
 								'label',
 								'item',
 								'data',
 								'template',
 								'form');
-					
+
 	function __construct($formInfo, $formData){
 		$this->formInfo = $formInfo;
 		$this->formData = $formData;
 	}
-	
+
 	function generateEmails($inputStr, $parseShortcodes = true){
 		$parser = new fm_custom_shortcode_parser($this->shortcodeList, array($this, 'emailShortcodeCallback'));
-		
+
 		if($parseShortcodes)
 			$shortCoded = $parser->parse($inputStr);
 		else
 			$shortCoded = $inputStr;
-		
+
 		//split into multiple definitions
 		$definitions = $this->splitIntoDefinitions($shortCoded);
-		return $definitions;		
+		return $definitions;
 	}
-	
+
 	function splitIntoDefinitions($shortCoded){
 		preg_match_all('/@start/i', $shortCoded, $matches, PREG_OFFSET_CAPTURE);
 		$messageStarts = array();
 		foreach($matches[0] as $match)	$messageStarts[] = $match[1] + strlen($match[0]);
-		
+
 		preg_match_all('/@end/i', $shortCoded, $matches, PREG_OFFSET_CAPTURE);
 		$messageEnds = array();
 		foreach($matches[0] as $match)	$messageEnds[] = $match[1];
-		
+
 		$defs = array();
 		foreach($messageStarts as $index=>$start){
 			$temp = substr($shortCoded, $start, $messageEnds[$index] - $start);
@@ -50,7 +50,7 @@ class fm_advanced_email_class{
 		}
 		return $defs;
 	}
-	
+
 	function divideDefinition($defStr){
 		$def = array();
 		preg_match('/@message\s+start/i', $defStr, $messageStart, PREG_OFFSET_CAPTURE);
@@ -61,30 +61,31 @@ class fm_advanced_email_class{
 		$end = $messageEnd[0][1];
 		$def['message'] = substr($defStr, $start, $end - $start);
 		$def['headers'] = substr($defStr, 0, $headerEnd);
-		
+
 		$attParser = new fm_custom_attribute_parser();
 		$atts = $attParser->getAttributes($def['headers']);
 		$def['to'] = $atts['To'];
 		$def['subject'] = $atts['Subject'];
-		
+
 		if(isset($atts['FM-EMAIL-NAME'])){
 			$def['email-name'] = $atts['FM-EMAIL-NAME'];
 			unset($atts['FM-EMAIL-NAME']);
 		}
-	
+
 		unset($atts['To']);
 		unset($atts['Subject']);
 		$def['headers'] = $atts;
-		
+
 		return $def;
 	}
-		
-	function emailShortcodeCallback($matches){		
-		global $current_user;
+
+	function emailShortcodeCallback($matches){
 		global $fmdb;
 		global $fm_controls;
 		global $fm_display;
-		
+
+    $current_user = wp_get_current_user();
+
 		//return print_r($matches, true);
 		switch(trim($matches[1])){
 			case "admin":
@@ -109,12 +110,12 @@ class fm_advanced_email_class{
 					default: return $this->formData['user'];
 				}
 				break;
-			case "timestamp": 
+			case "timestamp":
 				if($matches[2] != ""){
 					$format = substr($matches[2],2,strlen($matches[2])-3);
 					return date($format, strtotime($this->formData['timestamp']));
 				}
-				return $this->formData['timestamp'];			
+				return $this->formData['timestamp'];
 				break;
 			case "data":
 				switch(trim($matches[2])){
@@ -127,17 +128,17 @@ class fm_advanced_email_class{
 				$item = $fmdb->getItemByNickname($this->formInfo['ID'], $name);
 				switch($name){
 					case 'unique_id': 		return $this->formData['unique_id'];
-					
+
 					case 'post_id': 		return $this->formData['post_id'];
 					case 'post_url':		return get_permalink( $this->formData['post_id'] );
-									
+
 					case 'parent_post_id':	return $this->formData['parent_post_id'];
 					case 'parent_post_url':	return get_permalink( $this->formData['parent_post_id'] );
-					
+
 					case 'user_ip': 		return $this->formData['user_ip'];
 					case 'user': 			return $this->formData['user'];
 					case 'timestamp': 		return $this->formData['timestamp'];
-					default:				
+					default:
 						if($item === false)
 							$item = $fmdb->getFormItem($name);
 						if($item !== false)
@@ -165,24 +166,24 @@ class fm_advanced_email_class{
 		}
 		return "";
 	}
-	function emailDataAsList(){		
+	function emailDataAsList(){
 		global $fm_controls;
-		
+
 		$str = "<ul>\n";
 		foreach($this->formInfo['items'] as $item){
 			$str.="<li>".$item['label'].": ".$fm_controls[$item['type']]->parseData($item['unique_name'], $item, $this->formData[$item['unique_name']])."</li>\n";
-		}	
+		}
 		$str.= "</ul>\n";
 		return $str;
 	}
-	
+
 	function emailDataAsTable(){
 		global $fm_controls;
-		
+
 		$str = "<table cellspacing=\"5\">\n";
 		foreach($this->formInfo['items'] as $item){
 			$str.="<tr><td>".$item['label']."</td><td>".$fm_controls[$item['type']]->parseData($item['unique_name'], $item, $this->formData[$item['unique_name']])."</td></tr>\n";
-		}	
+		}
 		$str.= "</table>\n";
 		return $str;
 	}
