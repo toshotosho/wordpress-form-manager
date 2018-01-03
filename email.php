@@ -102,7 +102,7 @@ class fm_advanced_email_class{
 				}
 				break;
 			case "user":
-				$userData = get_userdatabylogin($this->formData['user']);
+				$userData = get_user_by('login', $this->formData['user']);
 				switch(trim($matches[2])){
 					case "ip": return $this->formData['user_ip'];
 					case "email": return $userData->user_email;

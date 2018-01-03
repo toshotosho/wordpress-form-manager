@@ -34,10 +34,10 @@ fm_summary_get_item_value($nickname) - get an item's value by nickname
 <h2><?php echo fm_summary_the_title(); ?></h2>
 
 <?php /* The user's first and last name, if there is a logged in user */ ?>
-<?php 
-$userName = fm_summary_the_user(); 
+<?php
+$userName = fm_summary_the_user();
 if(trim($userName) != ""){
-	$userData = get_userdatabylogin($userName);
+	$userData = get_user_by('login', $userName);
 	echo "Submitted by: <strong>".$userData->last_name.", ".$userData->first_name."</strong><br />";
 }
 ?>

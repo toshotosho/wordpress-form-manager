@@ -9,10 +9,10 @@ Template Type: email, summary
 */
 ?>
 <?php /* The user's first and last name, if there is a logged in user */ ?>
-<?php 
-$userName = fm_summary_the_user(); 
+<?php
+$userName = fm_summary_the_user();
 if($userName != ""){
-	$userData = get_userdatabylogin($userName);
+	$userData = get_user_by('login', $userName);
 	echo "Submitted by: <strong>".$userData->last_name.", ".$userData->first_name."</strong><br />";
 }
 ?>
