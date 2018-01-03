@@ -28,7 +28,7 @@ function fm_get_form_item(itemID){
 function fm_get_form_item_indexed(itemID, index){
 	var itemInfo = fm_get_form_item_info(itemID);
 	return document.getElementById('fm-form-' + itemInfo.ID)[itemInfo.unique_name + '-' + index];
-}	
+}
 
 //does nothing for now; appropriate script should be attached to the button to begin with
 function fm_register_form(formID){
@@ -44,32 +44,32 @@ function fm_submit_onclick(formID){
 function fm_submit_onclick_ajax(formID, formSlug){
 	if(fm_registered_forms[formID]) return false;
 	fm_registered_forms[formID] = true;
-	
+
 	if(!fm_check_required_items(formID)) return false;
 	if(!fm_check_text_validation(formID)) return false;
-	
+
 	var data = {
 		action: 'fm_post_form',
 		slug: formSlug,
 		fm_id: document.getElementById('fm-form-' + formID)['fm_id'].value,
 		fm_nonce: document.getElementById('fm-form-' + formID)['fm_nonce'].value
-	};		
+	};
 	var temp;
-	
+
 	for(var x=0;x<fm_registered_form_items.length;x++){
 		if(fm_registered_form_items[x].formID == formID){
 			eval("temp = " + fm_registered_form_items[x].getter_script + "(\'" + formID + "\', \'" + fm_registered_form_items[x].unique_name + "\');");
 			data[fm_registered_form_items[x].unique_name] = temp;
 		}
 	}
-	
+
 	var ajaxurl = fm_user_I18n.ajaxurl;
-	
+
 	jQuery.post(ajaxurl, data, function(response){
 		var formEL = document.getElementById('fm-form-' + formID);
 		jQuery(formEL).after(response).remove();
 	});
-	
+
 	return false;
 }
 
@@ -79,12 +79,12 @@ function fm_submit_onclick_ajax(formID, formSlug){
 function fm_check_text_validation(formID){
 	var msg = "";
 	for(var x=0;x<fm_registered_form_items.length;x++){
-		if(fm_registered_form_items[x].formID == formID && 
+		if(fm_registered_form_items[x].formID == formID &&
 			fm_registered_form_items[x].type == 'text' &&
 			!fm_item_validation_satisfied(fm_registered_form_items[x])){
 			if(!temp){
 				if(msg != "") msg += "\n";
-				msg += fm_registered_form_items[x].validation_msg;	
+				msg += fm_registered_form_items[x].validation_msg;
 			}
 		}
 	}
@@ -96,7 +96,7 @@ function fm_check_text_validation(formID){
 }
 
 function fm_item_validation_satisfied(itemDef){
-	if(itemDef.validation_callback != ""){		
+	if(itemDef.validation_callback != ""){
 		eval("temp = " + itemDef.validation_callback + "('" + itemDef.formID + "', '" + itemDef.unique_name + "', '" + itemDef.validation_type + "');");
 		return temp;
 	}
@@ -109,11 +109,11 @@ function fm_item_validation_satisfied(itemDef){
 function fm_check_required_items(formID){
 	var msg = "";
 	for(var x=0;x<fm_registered_form_items.length;x++){
-		if(fm_registered_form_items[x].formID == formID && 
+		if(fm_registered_form_items[x].formID == formID &&
 			!fm_item_required_satisfied(fm_registered_form_items[x])){
 			if(!temp){
 				if(msg != "") msg += "\n";
-				msg += fm_registered_form_items[x].required_msg;	
+				msg += fm_registered_form_items[x].required_msg;
 			}
 		}
 	}
@@ -136,7 +136,7 @@ function fm_item_required_satisfied(itemDef){
 function fm_set_required(itemID, req){
 	for(var x=0;x<fm_registered_form_items.length;x++){
 		temp = fm_registered_form_items[x];
-		if(temp.unique_name == itemID){			
+		if(temp.unique_name == itemID){
 			fm_registered_form_items[x].required = req;
 			tempID = 'fm-item-' + (temp.nickname != "" ? temp.nickname : temp.unique_name);
 			EMs = document.getElementById(tempID).getElementsByTagName('em');
@@ -145,7 +145,7 @@ function fm_set_required(itemID, req){
 			}
 		}
 	}
-	
+
 }
 
 function fm_supports_placeholder(){
@@ -154,7 +154,7 @@ function fm_supports_placeholder(){
 }
 
 
-function fm_remove_placeholders(){	
+function fm_remove_placeholders(){
 	if(!fm_supports_placeholder()){
 		for(var i=0;i<fm_registered_form_items.length;i++){
 			switch(fm_registered_form_items[i].type) {
@@ -197,7 +197,7 @@ function fm_base_required_validator(formID, itemID){
 	var e = document.getElementById('fm-form-' + formID)[itemID];
 	if ( typeof(e.ph_hasEdit) != 'undefined' ){
 		return ( e.ph_hasEdit );
-	}	
+	}
 	return (fm_trim(e.value) != "");
 }
 function fm_base_get_value(formID, itemID){
@@ -221,20 +221,20 @@ function fm_custom_list_required_validator(formID, itemID){
 	switch(listType){
 		case "radio":
 			return fm_radio_list_required_validator(formID, itemID);
-		case "checkbox": 
+		case "checkbox":
 			return fm_checkbox_list_required_validator(formID, itemID);
 		default:
 			return fm_select_list_required_validator(formID, itemID);
 	}
 	return false;
 }
-function fm_select_list_required_validator(formID, itemID){			
+function fm_select_list_required_validator(formID, itemID){
 	return (document.getElementById('fm-form-' + formID)[itemID].value != 0);
 }
-function fm_radio_list_required_validator(formID, itemID){	
+function fm_radio_list_required_validator(formID, itemID){
 	var radioList = document.getElementById('fm-form-' + formID)[itemID];
 	for(var x=0;x<radioList.length;x++)
-		if(radioList[x].checked == true) return true;		
+		if(radioList[x].checked == true) return true;
 	return false;
 }
 function fm_checkbox_list_required_validator(formID, itemID){
@@ -243,4 +243,7 @@ function fm_checkbox_list_required_validator(formID, itemID){
 		if(document.getElementById('fm-form-' + formID)[itemID + '-' + x].checked) return true;
 	}
 	return false;
+}
+function fm_recaptcha_required_validator(formID, itemID){
+  return (document.getElementById('g-recaptcha-response').value != "");
 }

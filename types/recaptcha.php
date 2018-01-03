@@ -79,13 +79,17 @@ class fm_recaptchaControl extends fm_controlBase{
 		$itemInfo['description'] = "Item Description";
 		$itemInfo['extra'] = array( 'theme' => 'default' );
 		$itemInfo['nickname'] = '';
-		$itemInfo['required'] = 0;
+		$itemInfo['required'] = "1";
 		$itemInfo['validator'] = "";
 		$ItemInfo['validation_msg'] = "";
 		$itemInfo['db_type'] = "NONE";
 
 		return $itemInfo;
 	}
+
+  public function getRequiredValidatorName(){
+    return "fm_recaptcha_required_validator";
+  }
 
 	public function editItem($uniqueName, $itemInfo){
 		global $fmdb;
