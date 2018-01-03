@@ -6,7 +6,7 @@
 //post form data
 add_action( 'wp_ajax_fm_post_form', 'fm_postFormAjax' );
 function fm_postFormAjax() {
-	echo fm_doFormBySlug( sanitize_text_field($_POST[ 'slug' ]) );	
+	echo fm_doFormBySlug( sanitize_text_field($_POST[ 'slug' ]) );
 	die();
 }
 
@@ -17,43 +17,43 @@ global $fm_save_had_error;
 function fm_saveFormAjax() {
 	global $fmdb;
 	global $fm_save_had_error;
-	
+
 	$fm_save_had_error = false;
-	
+
 	$formInfo = fm_saveHelperGatherFormInfo();
-	
+
 	foreach ( $formInfo['items'] as $k=>$item ) {
 		$formInfo['items'][$k]['set'] = 0;
 	}
-	
+
 	$formID = sanitize_text_field( $_POST['id'] );
-	
+
 	//check if the shortcode is a duplicate
 	$scID = $fmdb->getFormID( $formInfo[ 'shortcode' ] );
-	if( !( $scID == false 
-			|| $scID == $_POST[ 'id' ] 
-			|| trim( $formInfo[ 'shortcode' ] ) == "" ) 
+	if( !( $scID == false
+			|| $scID == $_POST[ 'id' ]
+			|| trim( $formInfo[ 'shortcode' ] ) == "" )
 		) {
 		//get the old shortcode
-		$formInfo[ 'shortcode' ] = $fmdb->getFormShortcode( $formID );			
+		$formInfo[ 'shortcode' ] = $fmdb->getFormShortcode( $formID );
 		//save the rest of the form
 		$fmdb->updateForm( $formID, $formInfo );
-		
+
 		//now tell the user there was an error
 		printf(
-			__("Error: the shortcode '%s' is already in use. (other changes were saved successfully)", 'wordpress-form-manager'), 
+			__("Error: the shortcode '%s' is already in use. (other changes were saved successfully)", 'wordpress-form-manager'),
 			$formInfo[ 'shortcode' ]
 			);
-		
+
 		die();
 	}
-			
+
 	//no errors: save the form, return '1'
 	$fmdb->updateForm( $formID, $formInfo );
-	
+
 	if(!$fm_save_had_error)
 		echo "1";
-		
+
 	die();
 }
 
@@ -61,34 +61,33 @@ add_action( 'wp_ajax_fm_save_submission_meta', 'fm_saveSubmissionMetaAjax' );
 
 function fm_saveSubmissionMetaAjax() {
 	global $fmdb;
-	
+
 	$formInfo = array();
 	$formInfo['items'] = fm_saveHelperGatherItems();
-	
+
 	foreach ( $formInfo['items'] as $k=>$item ) {
 		$formInfo['items'][$k]['set'] = 1;
 	}
-	
+
 	$fmdb->updateForm( $_POST[ 'id' ], $formInfo, 1 );
 	echo "1";
-	
+
 	die();
 }
 
 function fm_saveHelperGatherFormInfo(){
-	global $fm_save_had_error;	
-	
+	global $fm_save_had_error;
+
 	$formInfo = array();
 	$formInfo['title'] = $_POST['title'];
-	$formInfo['labels_on_top'] = $_POST['labels_on_top'];
-	$formInfo['submitted_msg'] = $_POST['submitted_msg'];
+	$formInfo['labels_on_top']   = !empty($_POST['labels_on_top']) ? $_POST['labels_on_top'] : '';
+	$formInfo['submitted_msg']   = $_POST['submitted_msg'];
 	$formInfo['submit_btn_text'] = $_POST['submit_btn_text'];
-	$formInfo['show_title'] = ($_POST['show_title']=="true"?1:0);
-	$formInfo['show_border'] = ($_POST['show_border']=="true"?1:0);
+	$formInfo['show_title']      = !empty($_POST['show_title']) ? 1 : 0;
+	$formInfo['show_border']     = !empty($_POST['show_border']) ? 1 : 0;
 	$formInfo['shortcode'] = sanitize_title($_POST['shortcode']);
-	$formInfo['label_width'] = $_POST['label_width'];
+	$formInfo['label_width']     = !empty($_POST['label_width']) ? $_POST['label_width'] : '';
 	$formInfo['required_msg'] = $_POST['required_msg'];
-	$formInfo['template_values'] = $_POST['template_values'];	
 	$formInfo['show_summary'] = ($_POST['show_summary']=="true"?1:0);
 	$formInfo['email_user_field'] = $_POST['email_user_field'];
 	$formInfo['email_subject'] = $_POST['email_subject'];
@@ -96,23 +95,25 @@ function fm_saveHelperGatherFormInfo(){
 	$formInfo['auto_redirect'] = ($_POST['auto_redirect']=="true"?1:0);
 	$formInfo['auto_redirect_page'] = $_POST['auto_redirect_page'];
 	$formInfo['auto_redirect_timeout'] = $_POST['auto_redirect_timeout'];
-	
+
 	// sanitize
 	foreach ( $formInfo as $k=>$v ){
 		$formInfo[$k] = sanitize_text_field($v);
 	}
-	
+
+  $formInfo['template_values'] = array_map( 'sanitize_text_field', $_POST['template_values'] );
+
 	//build the notification email list
 	$emailList = explode(",", sanitize_text_field($_POST['email_list']));
 	$valid = true;
 	for($x=0;$x<sizeof($emailList);$x++){
-		$emailList[$x] = trim($emailList[$x]);		
+		$emailList[$x] = trim($emailList[$x]);
 		if($emailList[$x] != "" && !preg_match("/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/", $emailList[$x])){
 			$valid = false;
 			$x = sizeof($emailList);
-		}	
+		}
 	}
-		
+
 	if($valid){
 		$temp = array();
 		foreach($emailList as $email)
@@ -124,10 +125,10 @@ function fm_saveHelperGatherFormInfo(){
 		_e("Error: There was a problem with the notification e-mail list.  Other settings were updated.", 'wordpress-form-manager');
 		$fm_save_had_error = true;
 	}
-		
+
 	//build the items list
 	$formInfo['items'] = fm_saveHelperGatherItems();
-	
+
 	return $formInfo;
 }
 
@@ -147,13 +148,13 @@ function fm_saveHelperGatherItems(){
 
 	if(isset($_POST['items']) && (is_array($_POST['items']) || is_object($_POST['items']))){
 		foreach($_POST['items'] as $item){
-			if ( isset( $item['extra'] ) && is_array( $item['extra']) ){				
+			if ( isset( $item['extra'] ) && is_array( $item['extra']) ){
 				$item[ 'extra' ] = fm_stripArrayValueSlashes( $item['extra'] );
 			}
-			$items[] = $item;			
+			$items[] = $item;
 		}
 	}
-	
+
 	return $items;
 }
 
@@ -162,22 +163,22 @@ add_action('wp_ajax_fm_new_item', 'fm_newItemAjax');
 function fm_newItemAjax(){
 	global $fm_display;
 	global $fmdb;
-	
+
 	$olderr = error_reporting();
 	error_reporting(E_ALL ^ E_NOTICE);
 	$fieldType = sanitize_text_field($_POST['type']);
-	
+
 	$uniqueName = $fmdb->getUniqueItemID($fieldType);
 
 	$str = "{".
 		"'html':\"".addslashes(urlencode($fm_display->getEditorItem($uniqueName, $fieldType, null)))."\",".
 		"'uniqueName':'".$uniqueName."'".
 		"}";
-	
+
 	echo $str;
-	
+
 	error_reporting($olderr);
-	
+
 	die();
 }
 
@@ -194,21 +195,21 @@ function fm_createFormElement(){
 add_action('wp_ajax_fm_download_file', 'fm_downloadFile');
 function fm_downloadFile(){
 	global $fmdb;
-	
+
 	$tmpDir =  fm_getTmpPath();
-	
+
 	$formID = sanitize_text_field($_POST['id']);
 	$itemID = sanitize_text_field($_POST['itemid']);
 	$subID = sanitize_text_field($_POST['subid']);
-	
+
 	$dataRow = $fmdb->getSubmissionByID($formID, $subID, "`".$itemID."`");
-	
-	$fileInfo = unserialize($dataRow[$itemID]);	
-	
+
+	$fileInfo = unserialize($dataRow[$itemID]);
+
 	fm_write_file( $tmpDir.$fileInfo['filename'], $fileInfo['contents'] );
-	
-	echo fm_getTmpURL().$fileInfo['filename'];		
-	
+
+	echo fm_getTmpURL().$fileInfo['filename'];
+
 	die();
 }
 
@@ -216,26 +217,26 @@ add_action('wp_ajax_fm_download_all_files', 'fm_downloadAllFiles');
 function fm_downloadAllFiles(){
 	global $fmdb;
 	global $fm_controls;
-	
+
 	$tmpDir =  fm_getTmpPath();
-	
+
 	$formID = sanitize_text_field($_POST['id']);
 	$itemID = sanitize_text_field($_POST['itemid']);
-	
+
 	$formInfo = $fmdb->getForm($formID);
-	
+
 	foreach($formInfo['items'] as $item){
 		if($item['unique_name'] == $itemID){
 			$itemLabel = $item['label'];
 			$fileItem = $item;
 		}
 	}
-	
+
 	$formData = $fmdb->getFormSubmissionDataRaw($formID, 'timestamp', 'DESC', 0, 0);
 	$files = array();
 	foreach($formData as $dataRow){
 		$fileInfo = unserialize($dataRow[$itemID]);
-		if(sizeof($fileInfo) > 1){		
+		if(sizeof($fileInfo) > 1){
 			if(!isset($fileInfo['upload_dir'])){
 				$fname = "(".$dataRow['timestamp'].") ".$fileInfo['filename'];
 				$files[] = $tmpDir.$fname;
@@ -246,17 +247,17 @@ function fm_downloadAllFiles(){
 			}
 		}
 	}
-	
+
 	if(sizeof($files) > 0){
-	
+
 		$zipFileName = $formInfo['title']." - ".$itemLabel.".zip";
-		$zipFullPath =  $tmpDir.sanitize_title($zipFileName);	
-		fm_createZIP($files, $zipFullPath); 
-		 
-		$fp = fopen(fm_getTmpPath()."download.php", "w");	
-		fwrite($fp, fm_createDownloadFileContents($zipFullPath, $zipFileName));	
-		fclose($fp); 
-		
+		$zipFullPath =  $tmpDir.sanitize_title($zipFileName);
+		fm_createZIP($files, $zipFullPath);
+
+		$fp = fopen(fm_getTmpPath()."download.php", "w");
+		fwrite($fp, fm_createDownloadFileContents($zipFullPath, $zipFileName));
+		fclose($fp);
+
 		echo fm_getTmpURL()."download.php";
 		die();
 	}
@@ -268,18 +269,18 @@ function fm_downloadAllFiles(){
 
 function fm_createDownloadFileContents($localFileName, $downloadFileName){
 	$str = "";
-	
+
 	$str.= "<?php\n";
 	$str.= "header('Content-Disposition: attachment; filename=\"".$downloadFileName."\"');\n";
 	$str.= "readfile('".$localFileName."');\n";
 	$str.= "?>";
- 
+
 	return $str;
 }
 
 /* Below is from David Walsh (davidwalsh.name), slightly modified. Thanks Dave! */
 function fm_createZIP($files = array(),$destination = '') {
-   
+
   //vars
   $valid_files = array();
   //if files were passed in...
@@ -305,15 +306,15 @@ function fm_createZIP($files = array(),$destination = '') {
     }
     //debug
     //echo 'The zip archive contains ',$zip->numFiles,' files with a status of ',$zip->status;
-    
+
     //close the zip -- done!
     $zip->close();
-    
+
     //check to make sure the file exists
 	return file_exists($destination);
   }
   else
-  { 
+  {
     return false;
   }
 }
