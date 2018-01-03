@@ -2,12 +2,12 @@ Notice: This fork (as well as the original plugin) is not safe to use in product
 
 I currently don't plan to officially take over or do any extra work on this plugin, except make it a bit more secure and working with reCaptcha v2.
 
-=== Form Manager ===
-Contributors: hoffcamp
+=== Form Manager Fork ===
+Contributors: hoffcamp, tosho
 Donate link: http://www.campbellhoffman.com/
 Tags: form, forms, form manager
-Requires at least: 3.0.0
-Tested up to: 4.3
+Requires at least: 4.1.0
+Tested up to: 4.9.1
 Stable tag: 1.7.4
 
 Put custom forms into posts and pages using shortcodes. Download submissions in .csv format.
