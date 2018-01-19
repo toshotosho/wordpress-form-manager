@@ -290,7 +290,7 @@ class fm_db_class{
 			`summary_hide_empty` BOOL DEFAULT '0' NOT NULL,
 			`exact_form_action` VARCHAR( 1024 ) DEFAULT '' NOT NULL,
 			`enable_autocomplete` BOOL DEFAULT '1' NOT NULL,
-			PRIMARY KEY  (`ID`)
+			PRIMARY KEY (`ID`)
 			) ".$charset_collate.";";
 
 
@@ -327,7 +327,7 @@ class fm_db_class{
 					`db_type` VARCHAR( 16 ) DEFAULT '' NOT NULL ,
 					`description` TEXT NOT NULL ,
 					`set` INT DEFAULT '0' NOT NULL ,
-					INDEX ( `ID` ) ,
+					INDEX (`ID`) ,
 					UNIQUE (`unique_name`)
 					) ".$charset_collate.";";
 

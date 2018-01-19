@@ -218,7 +218,10 @@ register_activation_hook( __FILE__, 'fm_install' );
 //uninstall - delete the table(s).
 function fm_uninstall() {
 	global $fmdb;
-	$fmdb->removeFormManager();
+
+  if ($fmdb) {
+    $fmdb->removeFormManager();
+  }
 
 	delete_option( 'fm-shortcode' );
 	delete_option( 'fm-forms-table-name' );
