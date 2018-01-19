@@ -2,6 +2,7 @@
 /*
 Plugin Name: Form Manager (Fork)
 Plugin URI: https://github.com/toshotosho/wordpress-form-manager
+GitHub Plugin URI: https://github.com/toshotosho/wordpress-form-manager
 Description: Forked from version 1.7.4 of http://www.campbellhoffman.com/form-manager/ by Campbell Hoffman. Added support for ReCaptcha v.2 and did a bit of code clean up.
 Author: Todor Gaidarov
 Author URI: https://todorgaidarov.com/
