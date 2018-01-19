@@ -7,8 +7,8 @@ Contributors: hoffcamp, tosho
 Donate link: http://www.campbellhoffman.com/
 Tags: form, forms, form manager
 Requires at least: 4.1.0
-Tested up to: 4.9.1
-Stable tag: 1.7.4
+Tested up to: 4.9.2
+Stable tag: 1.7.5
 
 Put custom forms into posts and pages using shortcodes. Download submissions in .csv format.
 
