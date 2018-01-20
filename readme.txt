@@ -58,6 +58,10 @@ You can also type in shortcodes yourself.  For example, if your form's slug is '
 * Chinese Simplified (zh_CN)
 
 == Changelog ==
+= 1.7.5 =
+* Security fixes.
+* Works with reCaptcha v2
+
 = 1.7.4 =
 * Security fixes.
 * Cleaned up some warning messages when running the plugin in debug mode.
