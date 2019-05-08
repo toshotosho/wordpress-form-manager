@@ -13,7 +13,7 @@ global $fm_MEMBERS_EXISTS;
 $form = null;
 if($_REQUEST['id']!="")
 	$form = $fmdb->getForm($_REQUEST['id']);
-	
+
 $formList = $fmdb->getFormList();
 
 $formTemplateFile = $form['form_template'];
@@ -29,9 +29,9 @@ $templateList = $fm_templates->getTemplateFilesByType();
 if(isset($_POST['load-fields'])){
 	$loadFieldsID = sanitize_text_field($_POST['load-fields-id']);
 	$insertFieldsAfter = sanitize_text_field($_POST['load-fields-insert-after']);
-	
+
 	$loadedForm = $fmdb->copyForm($loadFieldsID);
-	if( $insertFieldsAfter == "0"){  //insert at beginning		
+	if( $insertFieldsAfter == "0"){  //insert at beginning
 		$temp = $form['items'];
 		$form['items'] = $loadedForm['items'];
 		foreach($temp as $item)
@@ -41,7 +41,7 @@ if(isset($_POST['load-fields'])){
 		foreach($loadedForm['items'] as $item)
 			$form['items'][] = $item;
 	}
-	else{		
+	else{
 		$temp = array();
 		foreach($form['items'] as $oldItem){
 			$temp[] = $oldItem;
@@ -66,7 +66,7 @@ $email_list = explode(",", $form['email_list']);
 <div class="wrap">
 
 <div id="message-container">
-<?php 
+<?php
 if(isset($_POST['message']))
 	switch($_POST['message']){
 		case 1: ?><div id="message-success" class="updated"><p><?php _e("Form updated.", 'wordpress-form-manager');?> </p></div><?php break;
@@ -79,11 +79,11 @@ if(isset($_POST['message']))
 	} ?></div>
 
 <div id="poststuff" class="metabox-holder has-right-sidebar">
-	<div id="side-info-column" class="inner-sidebar">	
-			
-		
+	<div id="side-info-column" class="inner-sidebar">
+
+
 		<div id="side-sortables" class="meta-box-sortables">
-			
+
 			<div id="submitdiv" class="postbox " >
 			<h3><span><?php _e("Publish", 'wordpress-form-manager'); ?></span></h3>
 			<div class="inside">
@@ -92,73 +92,73 @@ if(isset($_POST['message']))
 						<div style="display:none;">
 						<input type="submit" name="save" value="<?php _e("Save", 'wordpress-form-manager');?>" />
 						</div>
-					
+
 						<div id="minor-publishing-actions">
-						
+
 							<div id="preview-action">
 							<a class="button-secondary" href="<?php echo get_admin_url(null, 'admin.php')."?page=fm-edit-form&id=".$form['ID'];?>"><?php _e("Cancel Changes", 'wordpress-form-manager'); ?></a>
 							</div>
-						
+
 							<div class="clear"></div>
 						</div>
-						
+
 						<div id="misc-publishing-actions"></div>
 						<div class="clear"></div>
 					</div>
-				
+
 					<div id="major-publishing-actions">
 						<div id="delete-action">
-						</div>						
+						</div>
 						<div id="publishing-action">
-						<img src="<?php echo get_admin_url(null, '');?>/images/wpspin_light.gif" id="ajax-loading" style="visibility:hidden;" alt="" />								
-								<input name="publish" type="button" class="button-primary" id="publish" tabindex="5" accesskey="p" value="<?php _e("Save Form", 'wordpress-form-manager');?>" onclick="fm_saveForm()" />						
-						</div>						
+						<img src="<?php echo get_admin_url(null, '');?>/images/wpspin_light.gif" id="ajax-loading" style="visibility:hidden;" alt="" />
+								<input name="publish" type="button" class="button-primary" id="publish" tabindex="5" accesskey="p" value="<?php _e("Save Form", 'wordpress-form-manager');?>" onclick="fm_saveForm()" />
+						</div>
 						<div class="clear"></div>
-					</div>										
-				</div>							
-			</div>				
-			</div>	
+					</div>
+				</div>
+			</div>
+			</div>
 		<!-------------------------------------------------------------------------------------------------- -->
 		<div id="submitdiv" class="postbox " >
 		<h3 class='hndle'><span><?php _e("Submission Data", 'wordpress-form-manager');?></span></h3>
 		<div class="inside">
-			<div class="submitbox" id="submitpost">			
-				<div id="minor-publishing">			
-					<div id="misc-publishing-actions">					
-						<div class="misc-pub-section"><?php /* translators: the number of submissions for a form */ _e("Submission count", 'wordpress-form-manager');?>:<strong><?php echo $fmdb->getSubmissionDataNumRows($form['ID']);?></strong></div>					
-						<div class="misc-pub-section misc-pub-section-last"><?php /* translators: label for the date of the most recent submission */ _e("Last submission", 'wordpress-form-manager');?>:<strong><?php $sub = $fmdb->getLastSubmission($form['ID']); echo $sub['timestamp'];?></strong></div>					
+			<div class="submitbox" id="submitpost">
+				<div id="minor-publishing">
+					<div id="misc-publishing-actions">
+						<div class="misc-pub-section"><?php /* translators: the number of submissions for a form */ _e("Submission count", 'wordpress-form-manager');?>:<strong><?php echo $fmdb->getSubmissionDataNumRows($form['ID']);?></strong></div>
+						<div class="misc-pub-section misc-pub-section-last"><?php /* translators: label for the date of the most recent submission */ _e("Last submission", 'wordpress-form-manager');?>:<strong><?php $sub = $fmdb->getLastSubmission($form['ID']); echo $sub['timestamp'];?></strong></div>
 					</div>
 					<div class="clear"></div>
-				</div>				
-			</div>		
+				</div>
+			</div>
 		</div>
 		</div>
-		<!-------------------------------------------------------------------------------------------------- -->	
-		
+		<!-------------------------------------------------------------------------------------------------- -->
+
 		<div id="tagsdiv-post_tag" class="postbox " >
 			<h3 class='hndle'><span><?php _e("Form Slug", 'wordpress-form-manager');?></span></h3>
-			
+
 			<div class="inside">
 				<div class="tagsdiv" id="post_tag">
 					<div class="jaxtag">
-						<div class="ajaxtag">															
+						<div class="ajaxtag">
 							<p><input style="text-align:left;" type="text" id="shortcode" value="<?php echo $form['shortcode'];?>" /></p>
-						</div>					
-					</div>					
-				</div>	
+						</div>
+					</div>
+				</div>
 			</div>
-		</div>	
+		</div>
 
 		<!-------------------------------------------------------------------------------------------------- -->
-		
-		
+
+
 		<div id="tagsdiv-post_tag" class="postbox " >
 			<h3 class='hndle'><span><?php _e("E-Mail Notifications", 'wordpress-form-manager');?></span></h3>
-			
+
 			<div class="inside">
 				<div class="tagsdiv" id="post_tag">
 				  <div class="jaxtag">
-						<div class="ajaxtag">											
+						<div class="ajaxtag">
 							<p>
 							<label><?php _e("Send to (user entry)", 'wordpress-form-manager');?>:</label>
 								<select name="email_user_field" id="email_user_field">
@@ -170,35 +170,35 @@ if(isset($_POST['message']))
 								<?php endforeach; ?>
 								</select>
 								<p class="howto" style="margin-top:-8px"><?php _e("Make sure the field you choose contains an E-Mail validator", 'wordpress-form-manager'); ?></p>
-							</p>							
+							</p>
 
 							<p>
 							<label><?php _e("Also send notification(s) to", 'wordpress-form-manager');?>:</label>
 							<input type="text" id="email_list" value="<?php echo (sizeof($email_list)==0)?"":implode(", ", $email_list); ?>" style="width:100%;"/>
 							<p class="howto" style="margin-top:-8px"><?php _e("Enter a list of e-mail addresses separated by commas", 'wordpress-form-manager');?></p>
 							</p>
-							
+
 							<p>
 							<label><?php _e("Subject", 'wordpress-form-manager');?>:</label>
 							<input type="text" id="email_subject" value="<?php echo htmlspecialchars($form['email_subject']); ?>" style="width:100%;" />
 							</p>
-							
+
 							<p>
 							<label><?php _e("From", 'wordpress-form-manager');?>:</label>
 							<input type="text" id="email_from" value="<?php echo htmlspecialchars($form['email_from']); ?>" style="width:100%;" />
 							</p>
-							
-						</div>						
-					</div>					
-				</div>	
+
+						</div>
+					</div>
+				</div>
 			</div>
-		</div>	
-		
+		</div>
+
 		<!-------------------------------------------------------------------------------------------------- -->
 
 		<div id="tagsdiv-post_tag" class="postbox " >
 			<h3 class='hndle'><span><?php _e("Auto Redirect", 'wordpress-form-manager');?></span></h3>
-			
+
 			<div class="inside">
 				<div class="tagsdiv" id="post_tag">
 				  <div class="jaxtag">
@@ -206,40 +206,40 @@ if(isset($_POST['message']))
 							<p class="howto" style="margin-top:0px"><?php _e("Automatically redirect the user after a successful form submission", 'wordpress-form-manager'); ?></p>
 							<p>
 							<label><?php _e("Enable automatic redirect", 'wordpress-form-manager'); ?>:</label>
-							<input type="checkbox" id="auto_redirect" <?php echo ($form['auto_redirect']==1?"checked=\"checked\"":"");?> />								
+							<input type="checkbox" id="auto_redirect" <?php echo ($form['auto_redirect']==1?"checked=\"checked\"":"");?> />
 							</p>
-							
+
 							<p>
 							<label><?php _e("Desination page", 'wordpress-form-manager');?>:</label>
-								<?php 
-									$pages = get_pages(array('post_type' => 'page')); 
+								<?php
+									$pages = get_pages(array('post_type' => 'page'));
 									$posts = get_posts(array('post_type' => 'post'));
 									$pages = array_merge($pages, $posts);?>
 								<select name="auto_redirect_page" id="auto_redirect_page">
 								<?php foreach($pages as $page): ?>
 									<option value="<?php echo $page->ID;?>" <?php echo ($form['auto_redirect_page'] == $page->ID ? "selected=\"selected\"" : ""); ?>><?php echo $page->post_title; ?></option>
 								<?php endforeach; ?>
-								</select>		
+								</select>
 							</p>
-							
+
 							<p>
 							<label><?php _e("Timeout (seconds)", 'wordpress-form-manager'); ?>:</label>
 								<input type="text" id="auto_redirect_timeout" name="auto_redirect_timeout" value="<?php echo $form['auto_redirect_timeout'];?>" size="4"/>
 							</p>
-						
-						</div>						
-					</div>					
-				</div>	
+
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
-		
+
 	</div><!-- side-info-column -->
 </div><!-- poststuff -->
 
 <div id="post-body">
 <div id="post-body-content" class="edit-form-body">
 <div id="titlediv">
-	<div id="titlewrap">		
+	<div id="titlewrap">
 		<input type="text" name="post_title" id="title" size="30" tabindex="1" value="<?php echo $form['title'];?>" autocomplete="off" />
 	</div>
 </div>
@@ -250,11 +250,11 @@ if(isset($_POST['message']))
 		<!-- <div class="zerosize"><input accesskey="e" type="button" onclick="switchEditors.go('content')" /></div>
 		<a id="edButtonHTML" class="hide-if-no-js" onclick="switchEditors.go('content', 'html');">HTML</a>
 		<a id="edButtonPreview" class="active hide-if-no-js" onclick="switchEditors.go('content', 'tinymce');">Visual</a> -->
-		<div id="media-buttons"><?php _e("Add Form Element:", 'wordpress-form-manager');?></div>		
+		<div id="media-buttons"><?php _e("Add Form Element:", 'wordpress-form-manager');?></div>
 
 	</div>
 	<div id='editorcontainer'>
-			<div class="fm-editor-controls">			
+			<div class="fm-editor-controls">
 			<?php
 				$types=array();
 				foreach($fm_controls as $controlKey=>$controlType){
@@ -266,20 +266,21 @@ if(isset($_POST['message']))
 			<div style="float:right"><a class="edit-form-button" onclick="fm_toggleLoadSavedFieldsDIV()" ><?php _e("Insert Saved Form", 'wordpress-form-manager');?></a></div>
 			<script type="text/javascript">
 			function fm_toggleLoadSavedFieldsDIV(){
-				Effect.toggle('load-saved-fields-div', 'Blind', {duration:0.1});
+				jQuery('#load-saved-fields-div').slideToggle();
+				// Effect.toggle('load-saved-fields-div', 'Blind', {duration:0.1});
 			}
 			</script>
 			</div>
 		<div class="fm-editor">
 			<div style="display:none;" id="load-saved-fields-div">
 				<div class="load-saved-fields">
-					<label for="load-fields-id"><?php _e("Insert Fields From:", 'wordpress-form-manager');?> </label>		
+					<label for="load-fields-id"><?php _e("Insert Fields From:", 'wordpress-form-manager');?> </label>
 					<select name="load-fields-id">
 						<?php foreach($formList as $f): ?>
 						<option value="<?php echo $f['ID'];?>"><?php echo $f['title']; ?></option>
-						<?php endforeach; ?> 
+						<?php endforeach; ?>
 					</select>&nbsp;&nbsp;
-					
+
 					<label for="load-fields-insert-after"><?php _e("Insert After:", 'wordpress-form-manager');?></label>
 					<select name="load-fields-insert-after">
 						<option value="0"><?php _e("(Insert at beginning)", 'wordpress-form-manager');?></option>
@@ -289,25 +290,25 @@ if(isset($_POST['message']))
 						<option value="1"><?php _e("(Insert at end)", 'wordpress-form-manager');?></option>
 					</select>
 					&nbsp;&nbsp;
-					<input name="load-fields" type="submit" class="button-secondary" value="<?php _e("Load Fields", 'wordpress-form-manager');?>" onclick="return fm_loadFields()"/>	
+					<input name="load-fields" type="submit" class="button-secondary" value="<?php _e("Load Fields", 'wordpress-form-manager');?>" onclick="return fm_loadFields()"/>
 				</div>
-			</div>					
-			
+			</div>
+
 			<ul id="form-list">
 			<?php foreach($form['items'] as $item): ?>
 			<?php	echo "<li class=\"edit-form-menu-item postbox\" id=\"".$item['unique_name']."\">".$fm_display->getEditorItem($item['unique_name'], $item['type'], $item)."</li>\n"; ?>
-			<?php endforeach; ?>	
+			<?php endforeach; ?>
 			</ul>
 		</div>
-	</div>	
-	
+	</div>
+
 	<?php if(get_option('fm-last-version') == '1.5.29'): ?>
 	<div class='fm-message'>
 		<a href="<?php echo get_admin_url(null, 'admin.php')."?page=fm-edit-form&sec=nicknames&id=".$form['ID'];?>"><?php echo _x("Private fields have moved", 'upgrade-notice', 'wordpress-form-manager');?></a>
 	</div>
 	<?php endif; ?>
-	
-	<script type="text/javascript">	
+
+	<script type="text/javascript">
 	fm_initEditor();
 	</script>
 
@@ -335,26 +336,26 @@ if(isset($_POST['message']))
 				foreach ( $keys as $key ){
 					if ( !isset( $option[$key] ) )
 						$option[$key] = "";
-				} 
+				}
 			?>
-			<div class="fm-admin-field-wrap">								
+			<div class="fm-admin-field-wrap">
 				<label><?php echo __(trim($option['label']), 'wordpress-form-manager');?>
 				<span class="small"><?php echo __(trim($option['description']), 'wordpress-form-manager');?></span>
 				</label>
 					<?php
 					$varId = $fm_template_controls[$option['type']]->getVarId($option);
 					$storedId = substr($varId, 3);
-					
+
 					if(!isset($form['template_values'][$storedId]) || $form['template_values'] === false) $val = $option['default'];
 					else $val = $form['template_values'][$storedId];
-					
-					echo $fm_template_controls[$option['type']]->getEditor($val, $option); 					
+
+					echo $fm_template_controls[$option['type']]->getEditor($val, $option);
 					?>
 					<script type="text/javascript">
 					<?php	echo "fm_registerExtraSaveVar('".$varId."', '".$fm_template_controls[$option['type']]->getElementValueAttribute()."');\n";?>
 					</script>
 			</div>
-			<?php endforeach; ?>						
+			<?php endforeach; ?>
 		</div>
 		</div>
 	</div>
@@ -364,15 +365,15 @@ if(isset($_POST['message']))
 <div id="normal-sortables" class="meta-box-sortables">
 	<div id="postexcerpt" class="postbox " >
 	<h3 class='hndle'><span><?php _e("Customize", 'wordpress-form-manager');?></span></h3>
-		<div class="inside">	
+		<div class="inside">
 		<div class="fm-form-admin">
-			<div class="fm-admin-field-wrap">								
+			<div class="fm-admin-field-wrap">
 				<label><?php _e("Submit acknowledgement message:", 'wordpress-form-manager');?>
 				<span class="small"><?php _e("This is displayed after the form has been submitted", 'wordpress-form-manager');?></span>
 				</label>
 					<input type="text" id="submitted_msg" value="<?php echo htmlspecialchars($form['submitted_msg']);?>" />
 			</div>
-			<div class="fm-admin-field-wrap">								
+			<div class="fm-admin-field-wrap">
 				<label><?php _e("Show summary with acknowledgment:", 'wordpress-form-manager');?>
 				<span class="small"><?php _e("A summary of the submitted data will be shown along with the acknowledgment message", 'wordpress-form-manager');?></span>
 				</label>
@@ -382,7 +383,7 @@ if(isset($_POST['message']))
 				<label><?php _e("Submit button label:", 'wordpress-form-manager');?></label>
 					<input type="text" id="submit_btn_text" value="<?php echo htmlspecialchars($form['submit_btn_text']);?>"/>
 			</div>
-			<div class="fm-admin-field-wrap">								
+			<div class="fm-admin-field-wrap">
 				<label><?php _e("Required item message:", 'wordpress-form-manager');?>
 				<span class="small"><?php _e("This is shown if a user leaves a required item blank.  The item's label will appear in place of '%s'.", 'wordpress-form-manager');?></span>
 				</label>

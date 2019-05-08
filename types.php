@@ -8,7 +8,7 @@ include 'formelements/formelements.php';
 // the keys in this array are used in the 'addItem' AJAX to create new items, and as the 'type' db field for form items
 $fm_controlTypes = array('default' => 			'fm_controlBase',
 						'text' => 				'fm_textControl',
-						'metatext' => 			'fm_metaTextControl',						
+						'metatext' => 			'fm_metaTextControl',
 						'textarea' => 			'fm_textareaControl',
 						'metatextarea' => 		'fm_metaTextareaControl',
 						'checkbox' => 			'fm_checkboxControl',
@@ -47,24 +47,26 @@ include 'types/panelhelper.php';
 function fm_showControlScripts(){
 	?><script type="text/javascript">
 //<![CDATA[
-	function fm_showEditDivCallback(itemID, callback){		
+	function fm_showEditDivCallback(itemID, callback){
 		var editDiv = document.getElementById(itemID + '-edit-div');
 		var editClick = document.getElementById(itemID + '-edit');
-				
+
 		if(editClick.innerHTML == '<?php _e("Edit", 'wordpress-form-manager');?>'){
 			if(callback != "") eval(callback + '(itemID,false);');
 			editClick.innerHTML = '<?php _e("Hide", 'wordpress-form-manager');?>';
-			Effect.BlindDown(itemID + '-edit-div', { duration: 0.2 });
+			jQuery('#' + itemID + '-edit-div').slideDown();
+			// Effect.BlindDown(itemID + '-edit-div', { duration: 0.2 });
 		}
 		else{
 			if(callback != "") eval(callback + '(itemID,true);');
 			editClick.innerHTML = '<?php _e("Edit", 'wordpress-form-manager');?>';
-			Effect.BlindUp(itemID + '-edit-div', { duration: 0.2 });
-		}	
+			jQuery('#' + itemID + '-edit-div').slideUp();
+			// Effect.BlindUp(itemID + '-edit-div', { duration: 0.2 });
+		}
 	}
 //]]>
 </script><?php
-}	
+}
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -74,9 +76,9 @@ function fm_buildControlTypes($controlTypes){
 	foreach($controlTypes as $name=>$class){
 		$arr[$name] = new $class();
 	}
-	
+
 	$arr = apply_filters( 'fm_control_types', $arr );
-	
+
 	return $arr;
 }
 
